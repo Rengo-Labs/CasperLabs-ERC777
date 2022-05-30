@@ -3,10 +3,10 @@ use alloc::{string::String, vec, vec::Vec};
 use alloc::boxed::Box;
 
 use casper_types::{
-    CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256,
+    CLType, CLTyped,
+    EntryPoint, EntryPointAccess, EntryPointType, EntryPoints,
+    Parameter, U256, bytesrepr::Bytes
 };
-use casper_types::bytesrepr::Bytes;
-
 
 use crate::{
     address::Address,

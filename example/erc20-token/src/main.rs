@@ -23,7 +23,7 @@ use casper_erc20::{
 };
 use casper_types::{CLValue, U256};
 use casper_types::bytesrepr::Bytes;
-use casper_erc20::constants::OPERATORS_RUNTIME_ARG_NAME;
+use casper_erc20::constants::{ACCOUNT_RUNTIME_ARG_NAME, OPERATORS_RUNTIME_ARG_NAME};
 
 #[no_mangle]
 pub extern "C" fn name() {
@@ -168,13 +168,13 @@ pub extern "C" fn operator_send() {
 
 #[no_mangle]
 pub extern "C" fn operator_burn() {
-    let operator: Address = runtime::get_named_arg(OPERATOR_RUNTIME_ARG_NAME);
+    let account: Address = runtime::get_named_arg(ACCOUNT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
     let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
     let operator_data: Bytes = runtime::get_named_arg(OPERATOR_DATA_RUNTIME_ARG_NAME);
 
     ERC20::default()
-        .operator_burn(operator, amount, data, operator_data)
+        .operator_burn(account, amount, data, operator_data)
         .unwrap_or_revert();
 }
 

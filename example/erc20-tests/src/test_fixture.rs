@@ -6,7 +6,7 @@ use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextB
 use casper_erc20::{Address, constants as consts};
 use casper_types::{
     account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes},
+    bytesrepr::{FromBytes, ToBytes, Bytes},
     runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256, U512,
 };
 
@@ -32,8 +32,6 @@ pub struct TestFixture {
 impl TestFixture {
     pub const TOKEN_NAME: &'static str = "Test ERC20";
     pub const TOKEN_SYMBOL: &'static str = "TERC";
-    pub const TOKEN_DECIMALS: u8 = 8;
-    pub const TOKEN_OPERATORS: Vec<Address> = Vec::new();
     const TOKEN_TOTAL_SUPPLY_AS_U64: u64 = 1000;
 
     pub fn token_total_supply() -> U256 {
@@ -158,6 +156,22 @@ impl TestFixture {
         Some(value.into_t::<U256>().unwrap())
     }
 
+    pub fn operators(&self, owner: Key) -> Option<String>{
+        let key_bytes = owner.to_bytes().unwrap();
+        let hash = blake2b256(&key_bytes);
+        let operators_item_key = hex::encode(&hash);
+
+        let key = Key::Hash(self.contract_hash().value());
+        let value = self
+            .context
+            .query_dictionary_item(
+                key,
+                Some(consts::OPERATORS_KEY_NAME.to_string()),
+                operators_item_key,
+            ).ok()?;
+        Some(value.into_t::<String>().unwrap())
+    }
+
     pub fn transfer(&mut self, recipient: Key, amount: U256, sender: Sender) {
         self.call(
             sender,
@@ -188,6 +202,79 @@ impl TestFixture {
                 consts::OWNER_RUNTIME_ARG_NAME => owner,
                 consts::RECIPIENT_RUNTIME_ARG_NAME => recipient,
                 consts::AMOUNT_RUNTIME_ARG_NAME => amount
+            },
+        );
+    }
+
+    pub fn burn(&mut self, amount: U256, sender: Sender) {
+        self.call(
+            sender,
+            consts::BURN_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => Bytes::new()
+            },
+        );
+    }
+
+    pub fn authorize_operator(&mut self, operator: Key, sender: Sender) {
+        self.call(
+            sender,
+            consts::AUTHORIZE_OPERATOR_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::OPERATOR_RUNTIME_ARG_NAME => operator
+            },
+        );
+    }
+
+    pub fn revoke_operator(&mut self, operator: Key, sender: Sender) {
+        self.call(
+            sender,
+            consts::REVOKE_OPERATOR_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::OPERATOR_RUNTIME_ARG_NAME => operator
+            },
+        );
+    }
+
+    pub fn operator_send(
+        &mut self,
+        sender: Key,
+        recipient: Key,
+        amount: U256,
+        data: Bytes,
+        operator_data: Bytes,
+        operator: Sender
+    ) {
+        self.call(
+            operator,
+            consts::OPERATOR_SEND_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::SENDER_RUNTIME_ARG_NAME => sender,
+                consts::RECIPIENT_RUNTIME_ARG_NAME => recipient,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => data,
+                consts::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
+            },
+        );
+    }
+
+    pub fn operator_burn(
+        &mut self,
+        account: Key,
+        amount: U256,
+        data: Bytes,
+        operator_data: Bytes,
+        operator: Sender
+    ) {
+        self.call(
+            operator,
+            consts::OPERATOR_BURN_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::ACCOUNT_RUNTIME_ARG_NAME => account,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => data,
+                consts::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
             },
         );
     }

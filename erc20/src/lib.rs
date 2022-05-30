@@ -36,7 +36,11 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef, U256}, ContractHash, RuntimeArgs};
+use casper_types::{
+    bytesrepr::Bytes,
+    {contracts::NamedKeys, EntryPoints, Key, URef, U256},
+    ContractHash, RuntimeArgs
+};
 
 pub use address::Address;
 use constants::{
@@ -232,13 +236,6 @@ impl ERC20 {
         Ok(())
     }
 
-    /// Burns (i.e. subtracts) `amount` of tokens from `owner`'s balance and from the token total
-    /// supply.
-    ///
-    /// # Security
-    ///
-    /// This offers no security whatsoever, hence it is advised to NOT expose this method through a
-    /// public entry point.
     pub fn burn(&mut self, amount: U256, data: Bytes) -> Result<(), Error> {
         let owner: Address = detail::get_immediate_caller_address()?;
 
@@ -248,6 +245,30 @@ impl ERC20 {
             amount,
             self.read_total_supply(),
             data,
+            Bytes::new(),
+            true
+        ).unwrap_or_revert();
+
+        self.write_total_supply(new_total_supply);
+
+        Ok(())
+    }
+
+    /// Burns (i.e. subtracts) `amount` of tokens from `owner`'s balance and from the token total
+    /// supply.
+    ///
+    /// # Security
+    ///
+    /// This offers no security whatsoever, hence it is advised to NOT expose this method through a
+    /// public entry point.
+    pub fn _burn(&mut self, owner: Address, amount: U256) -> Result<(), Error> {
+
+        let new_total_supply: U256 = balances::burn(
+            self.balances_uref(),
+            owner,
+            amount,
+            self.read_total_supply(),
+            Bytes::new(),
             Bytes::new(),
             true
         ).unwrap_or_revert();
@@ -275,16 +296,16 @@ impl ERC20 {
     pub fn is_operator_for(&mut self, operator: Address, token: Address) -> Result<bool, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
-        let result = operators::contains(self.operators_uref(), caller, operator);
+        let result = operators::check_if_exists(self.operators_uref(), caller, operator);
         Ok(result)
     }
 
     //todo event
     pub fn authorize_operator(&mut self, operator: Address) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
-        operators::write_operators(
+        operators::concat_in_string(
             self.operators_uref(),
-            operators::to_str(caller).as_str(),
+            caller,
             operator
         );
         Ok(())
@@ -292,14 +313,22 @@ impl ERC20 {
 
     //todo event
     pub fn revoke_operator(&mut self, operator: Address) -> Result<(), Error> {
-        operators::remove_operator(self.operators_uref(), operator);
+        let caller: Address = detail::get_immediate_caller_address()?;
+        operators::get_rid_of(
+            self.operators_uref(),
+            caller,
+            operator
+        );
         Ok(())
     }
 
     pub fn default_operators(&mut self) -> Result<Vec<Address>, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
-        let addresses = operators::find_operators(caller);
+        let addresses = operators::make_array(
+            self.operators_uref(),
+            caller
+        );
 
         Ok(addresses)
     }
@@ -321,12 +350,13 @@ impl ERC20 {
             amount,
             data,
             operator_data,
-            operators::contains(self.operators_uref(), sender,caller)
+            operators::check_if_exists(self.operators_uref(), sender,caller)
         )
     }
 
     pub fn operator_burn(
-        &mut self, account: Address,
+        &mut self,
+        account: Address,
         amount: U256,
         data: Bytes,
         operator_data: Bytes
@@ -340,7 +370,7 @@ impl ERC20 {
             self.read_total_supply(),
             data,
             operator_data,
-            operators::contains(self.operators_uref(), account,caller)
+            operators::check_if_exists(self.operators_uref(), account,caller)
         ).unwrap_or_revert();
 
         self.write_total_supply(new_total_supply);

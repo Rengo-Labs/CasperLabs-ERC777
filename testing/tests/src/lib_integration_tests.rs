@@ -46,16 +46,12 @@ const METHOD_TRANSFER: &str = "transfer";
 const ARG_AMOUNT: &str = "amount";
 const ARG_RECIPIENT: &str = "recipient";
 const ARG_DATA: &str = "data";
-const ARG_OPERATOR_DATA: &str = "operator_data";
 
 const METHOD_APPROVE: &str = "approve";
 const ARG_OWNER: &str = "owner";
 const ARG_SPENDER: &str = "spender";
 
 const METHOD_TRANSFER_FROM: &str = "transfer_from";
-const METHOD_DEFAULT_OPERATORS: &str = "default_operators";
-const METHOD_AUTHORIZE_OPERATOR: &str = "authorize_operator";
-const METHOD_REVOKE_OPERATOR: &str = "revoke_operator";
 
 const CHECK_TOTAL_SUPPLY_ENTRYPOINT: &str = "check_total_supply";
 const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
@@ -92,7 +88,7 @@ const TOKEN_OWNER_ADDRESS_2: Key = Key::Hash([42; 32]);
 const TOKEN_OWNER_AMOUNT_2: u64 = 2_000_000;
 
 const METHOD_MINT: &str = "mint";
-const METHOD_BURN: &str = "burn";
+const METHOD_BURN: &str = "_burn";
 
 /// Converts hash addr of Account into Hash, and Hash into Account
 ///
@@ -494,39 +490,6 @@ fn test_approve_for(
 
     let total_supply: U256 = builder.get_value(*erc20_token, TOTAL_SUPPLY_KEY);
     assert_eq!(total_supply, initial_supply);
-}
-
-fn erc20_check_operator_of(
-    builder: &mut InMemoryWasmTestBuilder,
-    erc20_contract_hash: &ContractHash,
-    address: Key,
-) -> U256 {
-    let account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
-
-    let erc20_test_contract_hash = account
-        .named_keys()
-        .get(ERC20_TEST_CALL_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have test contract hash");
-
-    let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => *erc20_contract_hash,
-        ARG_ADDRESS => address,
-    };
-    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
-        *DEFAULT_ACCOUNT_ADDR,
-        erc20_test_contract_hash,
-        None,
-        CHECK_BALANCE_OF_ENTRYPOINT,
-        check_balance_args,
-    )
-        .build();
-    builder.exec(exec_request).expect_success().commit();
-
-    get_test_result(builder, erc20_test_contract_hash)
 }
 
 #[test]
@@ -1041,14 +1004,13 @@ fn should_transfer_from_account_by_contract() {
 #[test]
 fn test_mint_and_burn_tokens() {
     let mint_amount = U256::one();
-    let address2 = Key::Account(*ACCOUNT_1_ADDR);
 
     let (mut builder, TestContext { test_contract, .. }) = setup();
     assert_eq!(
         erc20_check_balance_of(
             &mut builder,
             &test_contract,
-            Key::Account(*ACCOUNT_1_ADDR)
+            Key::Account(*DEFAULT_ACCOUNT_ADDR)
         ),
         U256::from(TOKEN_TOTAL_SUPPLY),
     );
@@ -1089,29 +1051,20 @@ fn test_mint_and_burn_tokens() {
         total_supply_after_mint,
         total_supply_before_mint + mint_amount,
     );
-
-    let nuevo = erc20_check_balance_of(&mut builder, &test_contract, address2);
-    println!("nuevo {}", nuevo);
     let total_supply_before_burn = total_supply_after_mint;
 
     let burn_request = ExecuteRequestBuilder::contract_call_by_hash(
-        ACCOUNT_2_PUBLIC_KEY.to_account_hash(),
+        *DEFAULT_ACCOUNT_ADDR,
         test_contract,
         METHOD_BURN,
         runtime_args! {
+            ARG_OWNER => TOKEN_OWNER_ADDRESS_1,
             ARG_AMOUNT => mint_amount,
-            ARG_DATA => Bytes::new()
         },
     )
     .build();
 
     builder.exec(burn_request).expect_success().commit();
-
-    let total_supply_after_verifying = erc20_check_total_supply(&mut builder, &test_contract);
-    println!("ultima actualizaccion {}", total_supply_after_verifying);
-    let owner1 = erc20_check_balance_of(&mut builder, &test_contract, TOKEN_OWNER_ADDRESS_1);
-    let owner2 = erc20_check_balance_of(&mut builder, &test_contract, TOKEN_OWNER_ADDRESS_2);
-    println!("{} {}", owner1, owner2);
 
     assert_eq!(
         erc20_check_balance_of(&mut builder, &test_contract, TOKEN_OWNER_ADDRESS_1),
@@ -1357,58 +1310,6 @@ fn should_verify_zero_amount_transfer_from_is_noop() {
             erc20_transfer_from_args,
         )
         .build()
-    };
-
-    builder
-        .exec(transfer_from_request)
-        .expect_success()
-        .commit();
-
-    let sender_balance_after = erc20_check_balance_of(&mut builder, &erc20_token, sender);
-    assert_eq!(sender_balance_before, sender_balance_after);
-
-    let recipient_balance_after = erc20_check_balance_of(&mut builder, &erc20_token, recipient);
-    assert_eq!(recipient_balance_before, recipient_balance_after);
-
-    let spender_allowance_after = erc20_check_allowance_of(&mut builder, owner, spender);
-    assert_eq!(spender_allowance_after, spender_allowance_before);
-}
-
-#[test]
-fn should_verify_operators() {
-    let (mut builder, TestContext { erc20_token, .. }) = setup();
-
-    let owner = Key::Account(*DEFAULT_ACCOUNT_ADDR);
-    let spender = Key::Account(*ACCOUNT_1_ADDR);
-    let sender = Key::Account(*ACCOUNT_1_ADDR);
-    let recipient = Key::Account(*DEFAULT_ACCOUNT_ADDR);
-
-    let allowance_amount = U256::from(1);
-    let transfer_amount = U256::zero();
-
-    let approve_request =
-        make_erc20_approve_request(sender, &erc20_token, spender, allowance_amount);
-
-    builder.exec(approve_request).expect_success().commit();
-
-    let spender_allowance_before = erc20_check_allowance_of(&mut builder, owner, spender);
-
-    let sender_balance_before = erc20_check_balance_of(&mut builder, &erc20_token, sender);
-    let recipient_balance_before = erc20_check_balance_of(&mut builder, &erc20_token, recipient);
-
-    let transfer_from_request = {
-        let erc20_transfer_from_args = runtime_args! {
-            ARG_OWNER => owner,
-            ARG_RECIPIENT => recipient,
-            ARG_AMOUNT => transfer_amount,
-        };
-        ExecuteRequestBuilder::contract_call_by_hash(
-            sender.into_account().unwrap(),
-            erc20_token,
-            METHOD_TRANSFER_FROM,
-            erc20_transfer_from_args,
-        )
-            .build()
     };
 
     builder

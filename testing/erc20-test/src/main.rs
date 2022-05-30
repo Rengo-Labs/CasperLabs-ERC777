@@ -19,18 +19,15 @@ use casper_types::{
     account::AccountHash, CLType, CLTyped, CLValue, ContractPackageHash, EntryPoint,
     EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256,
 };
-use casper_types::bytesrepr::Bytes;
-use casper_erc20::constants::DATA_RUNTIME_ARG_NAME;
 
 const MINT_ENTRY_POINT_NAME: &str = "mint";
-const BURN_ENTRY_POINT_NAME: &str = "burn";
+const BURN_ENTRY_POINT_NAME: &str = "_burn";
 
 /// "erc20" is not mentioned here intentionally as the functionality is not compatible with ERC20
 /// token standard.
 const TEST_CONTRACT_KEY_NAME: &str = "test_contract";
 const TOKEN_NAME: &str = "CasperTest";
 const TOKEN_SYMBOL: &str = "CSPRT";
-const TOKEN_DECIMALS: u8 = 8;
 const TOKEN_TOTAL_SUPPLY: u64 = 1_000_000_000;
 
 const TOKEN_OWNER_ADDRESS_1: Address = Address::Account(AccountHash::new([42; 32]));
@@ -136,10 +133,10 @@ pub extern "C" fn mint() {
 }
 
 #[no_mangle]
-pub extern "C" fn burn() {
+pub extern "C" fn _burn() {
+    let owner: Address = runtime::get_named_arg(OWNER_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
-    let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
-    TestToken::default().burn(amount, data).unwrap_or_revert();
+    TestToken::default()._burn(owner, amount).unwrap_or_revert();
 }
 
 #[no_mangle]
