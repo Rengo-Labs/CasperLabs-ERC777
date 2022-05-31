@@ -22,8 +22,9 @@ pub enum Error {
     Overflow,
     /// User error.
     User(u16),
-    //
+    /// The address does not exist
     InvalidAddress,
+    /// The operator does not exist
     InvalidOperator
 }
 

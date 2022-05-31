@@ -34,7 +34,7 @@ pub fn read_operators(operators_uref: URef, owner_key: &str) -> Vec<Address> {
 
 pub fn write_operators(operators_uref: URef, caller: &str, operator: Address) {
 
-    let mut operators = read_operators(operators_uref, caller);
+    let operators = read_operators(operators_uref, caller);
 
 
     storage::dictionary_put(operators_uref, caller, operators);
@@ -72,7 +72,7 @@ pub fn check_if_exists(operators_uref: URef, owner:Address, operator: Address) -
 
 pub fn get_rid_of(operators_uref: URef, owner: Address, operator: Address) {
 
-    let mut arrays_address: String = storage::dictionary_get(
+    let arrays_address: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_default().unwrap();
@@ -111,7 +111,7 @@ pub fn make_array(operators_uref: URef, owner: Address) -> Vec<Address> {
             .filter(|value | ! value.is_empty())
     );
 
-    let newList = Vec::from_iter(
+    let new_list = Vec::from_iter(
         list.iter()
             .map(
                 |value
@@ -120,7 +120,7 @@ pub fn make_array(operators_uref: URef, owner: Address) -> Vec<Address> {
     );
 
     Vec::from_iter(
-        newList.iter()
+        new_list.iter()
             .map(
                 | &value
                 | Account(value)

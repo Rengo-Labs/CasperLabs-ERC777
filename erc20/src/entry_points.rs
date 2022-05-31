@@ -138,6 +138,7 @@ pub fn decimals() -> EntryPoint {
     )
 }
 
+/// Returns the `granularity` entry point.
 pub fn granularity() -> EntryPoint {
     EntryPoint::new(
         String::from(GRANULARITY_ENTRY_POINT_NAME),
@@ -148,6 +149,7 @@ pub fn granularity() -> EntryPoint {
     )
 }
 
+/// Returns the `send` entry point.
 pub fn send() -> EntryPoint {
     EntryPoint::new(
         String::from(SEND_ENTRY_POINT_NAME),
@@ -162,6 +164,7 @@ pub fn send() -> EntryPoint {
     )
 }
 
+/// Returns the `burn` entry point.
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
@@ -175,6 +178,7 @@ pub fn burn() -> EntryPoint {
     )
 }
 
+/// Returns the `is_operator_for` entry point.
 pub fn is_operator_for() -> EntryPoint {
     EntryPoint::new(
         String::from(IS_OPERATOR_FOR_ENTRY_POINT_NAME),
@@ -188,6 +192,7 @@ pub fn is_operator_for() -> EntryPoint {
     )
 }
 
+/// Returns the `authorize_operator` entry point.
 pub fn authorize_operator() -> EntryPoint {
     EntryPoint::new(
         String::from(AUTHORIZE_OPERATOR_ENTRY_POINT_NAME),
@@ -200,6 +205,7 @@ pub fn authorize_operator() -> EntryPoint {
     )
 }
 
+/// Returns the `revoke_operator` entry point.
 pub fn revoke_operator() -> EntryPoint {
     EntryPoint::new(
         String::from(REVOKE_OPERATOR_ENTRY_POINT_NAME),
@@ -212,6 +218,7 @@ pub fn revoke_operator() -> EntryPoint {
     )
 }
 
+/// Returns the `default_operator` entry point.
 pub fn default_operators() -> EntryPoint {
     EntryPoint::new(
         String::from(DEFAULT_OPERATORS_ENTRY_POINT_NAME),
@@ -222,6 +229,7 @@ pub fn default_operators() -> EntryPoint {
     )
 }
 
+/// Returns the `operator_send` entry point.
 pub fn operator_send() -> EntryPoint {
     EntryPoint::new(
         String::from(OPERATOR_SEND_ENTRY_POINT_NAME),
@@ -238,6 +246,7 @@ pub fn operator_send() -> EntryPoint {
     )
 }
 
+/// Returns the `operator_burn` entry point.
 pub fn operator_burn() -> EntryPoint {
     EntryPoint::new(
         String::from(OPERATOR_BURN_ENTRY_POINT_NAME),

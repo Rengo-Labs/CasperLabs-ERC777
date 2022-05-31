@@ -168,6 +168,7 @@ impl ERC20 {
         self.read_total_supply()
     }
 
+    /// Returns the granularity of the token.
     pub fn granularity(&self) -> U256 {
         detail::read_from(GRANULARITY_KEY_NAME)
     }
@@ -236,6 +237,7 @@ impl ERC20 {
         Ok(())
     }
 
+    /// Allows burning a ´amount´ tokens straight of the caller's tokens.
     pub fn burn(&mut self, amount: U256, data: Bytes) -> Result<(), Error> {
         let owner: Address = detail::get_immediate_caller_address()?;
 
@@ -279,6 +281,7 @@ impl ERC20 {
     }
 
     //todo event
+    /// Allows sending a ´amount´ tokens to a ´recipient´ of the caller's tokens.
     pub fn send(&mut self, recipient: Address, amount: U256, data: Bytes) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
@@ -293,6 +296,7 @@ impl ERC20 {
         )
     }
 
+    /// Check up if the ´operator´ exists for this account.
     pub fn is_operator_for(&mut self, operator: Address, token: Address) -> Result<bool, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
@@ -301,6 +305,7 @@ impl ERC20 {
     }
 
     //todo event
+    /// Grant permission to an ´operator´ to send and burn tokens in behalf of the owner.
     pub fn authorize_operator(&mut self, operator: Address) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
         operators::concat_in_string(
@@ -312,6 +317,7 @@ impl ERC20 {
     }
 
     //todo event
+    /// Delete an ´operator´ for this account
     pub fn revoke_operator(&mut self, operator: Address) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
         operators::get_rid_of(
@@ -322,6 +328,7 @@ impl ERC20 {
         Ok(())
     }
 
+    /// Return a list of Operator's Address
     pub fn default_operators(&mut self) -> Result<Vec<Address>, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
@@ -333,6 +340,7 @@ impl ERC20 {
         Ok(addresses)
     }
 
+    /// Allows sending a ´amount´ tokens to a ´recipient´ in behalf of the caller's tokens.
     pub fn operator_send(
         &mut self,
         sender: Address,
@@ -354,6 +362,7 @@ impl ERC20 {
         )
     }
 
+    /// Allows burning a ´amount´ tokens in behalf of the tokens' owner.
     pub fn operator_burn(
         &mut self,
         account: Address,
@@ -469,6 +478,8 @@ impl ERC20 {
 
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
+
+
 
         Ok(ERC20::new(
             balances_uref,

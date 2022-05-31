@@ -3,8 +3,10 @@ use alloc::string::String;
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::{ToBytes, Bytes}, URef, U256};
+use casper_types::account::AccountHash;
 
 use crate::{constants::BALANCES_KEY_NAME, detail, error::Error, Address};
+use crate::Address::Account;
 use crate::external_contracts::{tokens_received, tokens_to_send};
 
 /// Creates a dictionary item key for a dictionary item.
@@ -94,12 +96,12 @@ pub(crate) fn send_balance(
         return Err(Error::InvalidOperator);
     }
 
-    tokens_to_send(sender, sender, recipient, amount, data, operator_data);
+    tokens_to_send(sender, sender, recipient, amount, data.clone(), operator_data.clone());
 
     transfer_balance(balances_uref, sender, recipient, amount);
     //todo if is a contract, I need to implement registry interface.
     //todo problem of scope
-    //tokens_received(sender, sender, recipient, amount, data, operator_data);
+    tokens_received(sender, sender, recipient, amount, data.clone(), operator_data.clone());
 
     //TODO send a Transfer event if is an erc20
     Ok(())
@@ -122,7 +124,7 @@ pub fn mint(
     write_balance_to(balances_uref, owner, new_balance);
 
     //todo Address 0x00
-    //tokens_received(owner, owner, recipient, amount, data, operator_data);
+    //tokens_received(owner, owner, recipient, amount, data.clone(), operator_data.clone());
     Ok(new_total_supply)
 }
 
@@ -140,7 +142,7 @@ pub fn burn(
     }
 
     // todo Address 0x00
-    //tokens_to_send(sender, sender, recipient, amount, data, operator_data);
+    tokens_to_send(owner, owner, Account(AccountHash::new([42; 32])), amount, data.clone(), operator_data.clone());
 
     let new_balance = {
         let balance = read_balance_from(balances_uref, owner);
