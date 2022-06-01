@@ -118,8 +118,8 @@ impl TestFixture {
             .unwrap()
     }
 
-    pub fn token_decimals(&self) -> u8 {
-        self.query_contract(consts::DECIMALS_RUNTIME_ARG_NAME)
+    pub fn token_granularity(&self) -> U256 {
+        self.query_contract(consts::GRANULARITY_RUNTIME_ARG_NAME)
             .unwrap()
     }
 
@@ -135,36 +135,20 @@ impl TestFixture {
         Some(value.into_t::<U256>().unwrap())
     }
 
-    pub fn allowance(&self, owner: Key, spender: Key) -> Option<U256> {
-        let mut preimage = Vec::new();
-        preimage.append(&mut owner.to_bytes().unwrap());
-        preimage.append(&mut spender.to_bytes().unwrap());
-        let key_bytes = blake2b256(&preimage);
-        let allowance_item_key = hex::encode(&key_bytes);
+    pub fn operators(&self, owner: Key) -> Option<String>{
+        let key_bytes = owner.to_bytes().unwrap();
+        let hash = blake2b256(&key_bytes);
+        let operators_item_key = hex::encode(&hash);
 
         let key = Key::Hash(self.contract_hash().value());
-
         let value = self
             .context
             .query_dictionary_item(
                 key,
-                Some(consts::ALLOWANCES_KEY_NAME.to_string()),
-                allowance_item_key,
-            )
-            .ok()?;
-
-        Some(value.into_t::<U256>().unwrap())
-    }
-
-    pub fn transfer(&mut self, recipient: Key, amount: U256, sender: Sender) {
-        self.call(
-            sender,
-            consts::TRANSFER_ENTRY_POINT_NAME,
-            runtime_args! {
-                consts::RECIPIENT_RUNTIME_ARG_NAME => recipient,
-                consts::AMOUNT_RUNTIME_ARG_NAME => amount
-            },
-        );
+                Some(consts::OPERATORS_KEY_NAME.to_string()),
+                operators_item_key,
+            ).ok()?;
+        Some(value.into_t::<String>().unwrap())
     }
 
     pub fn approve(&mut self, spender: Key, amount: U256, sender: Sender) {
@@ -186,6 +170,79 @@ impl TestFixture {
                 consts::OWNER_RUNTIME_ARG_NAME => owner,
                 consts::RECIPIENT_RUNTIME_ARG_NAME => recipient,
                 consts::AMOUNT_RUNTIME_ARG_NAME => amount
+            },
+        );
+    }
+
+    pub fn burn(&mut self, amount: U256, sender: Sender) {
+        self.call(
+            sender,
+            consts::BURN_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => Bytes::new()
+            },
+        );
+    }
+
+    pub fn authorize_operator(&mut self, operator: Key, sender: Sender) {
+        self.call(
+            sender,
+            consts::AUTHORIZE_OPERATOR_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::OPERATOR_RUNTIME_ARG_NAME => operator
+            },
+        );
+    }
+
+    pub fn revoke_operator(&mut self, operator: Key, sender: Sender) {
+        self.call(
+            sender,
+            consts::REVOKE_OPERATOR_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::OPERATOR_RUNTIME_ARG_NAME => operator
+            },
+        );
+    }
+
+    pub fn operator_send(
+        &mut self,
+        sender: Key,
+        recipient: Key,
+        amount: U256,
+        data: Bytes,
+        operator_data: Bytes,
+        operator: Sender
+    ) {
+        self.call(
+            operator,
+            consts::OPERATOR_SEND_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::SENDER_RUNTIME_ARG_NAME => sender,
+                consts::RECIPIENT_RUNTIME_ARG_NAME => recipient,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => data,
+                consts::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
+            },
+        );
+    }
+
+    pub fn operator_burn(
+        &mut self,
+        account: Key,
+        amount: U256,
+        data: Bytes,
+        operator_data: Bytes,
+        operator: Sender
+    ) {
+        self.call(
+            operator,
+            consts::OPERATOR_BURN_ENTRY_POINT_NAME,
+            runtime_args! {
+                consts::ACCOUNT_RUNTIME_ARG_NAME => account,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount,
+                consts::DATA_RUNTIME_ARG_NAME => data,
+                consts::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
             },
         );
     }

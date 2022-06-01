@@ -1,14 +1,8 @@
 [package]
-name = "casper-erc20"
-version = "0.2.1"
-edition = "2018"
-authors = ["Michał Papierski <michal@casperlabs.io>"]
-description = "A library for developing ERC20 tokens for the Casper network."
+name = "casper-erc777-recipient"
+version = "0.0.1"
+description = "A library for using ERC777Recipient"
 readme = "README.md"
-documentation = "https://docs.rs/casper-erc20"
-homepage = "https://casperlabs.io"
-repository = "https://github.com/casper-ecosystem/erc20"
-license-file = "../LICENSE"
 
 [dependencies]
 base64 = { version = "0.13.0", default-features = false, features = ["alloc"] }

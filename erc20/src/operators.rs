@@ -1,7 +1,6 @@
 use alloc::{string::String, vec::Vec};
 use alloc::string::ToString;
 use core::iter::FromIterator;
-use core::str::Bytes;
 
 use casper_contract::{
     contract_api::storage,
@@ -62,68 +61,70 @@ pub fn check_if_exists(operators_uref: URef, owner:Address, operator: Address) -
         return true;
     }
 
-    let arrays_address: String = storage::dictionary_get(
+    let data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_default().unwrap();
 
-    arrays_address.contains(operator.as_account_hash().unwrap().clone().to_string().as_str())
+    let addresses_string = decode(data);
+    addresses_string.contains(operator.as_account_hash().unwrap().clone().to_string().as_str())
 }
 
 pub fn get_rid_of(operators_uref: URef, owner: Address, operator: Address) {
 
-    let arrays_address: String = storage::dictionary_get(
+    let data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_default().unwrap();
 
+    let addresses_string = decode(data);
+
     let mut aux = operator.as_account_hash().unwrap().clone().to_string();
     aux.push('|');
+    let new_array= addresses_string.replace(aux.as_str(), "");
 
-    let new_array= arrays_address.replace(aux.as_str(), "");
-
-    storage::dictionary_put(operators_uref, to_str(owner).as_str(), new_array);
+    storage::dictionary_put(operators_uref, to_str(owner).as_str(), encode(new_array));
 }
 
 pub fn concat_in_string(operators_uref: URef, owner: Address, operator: Address) {
 
-    let mut arrays_address: String = storage::dictionary_get(
+    let mut data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_revert()
         .unwrap_or_default();
 
-    arrays_address.push_str(operator.as_account_hash().unwrap().clone().to_string().as_str());
-    arrays_address.push('|');
-    storage::dictionary_put(operators_uref, to_str(owner).as_str(), arrays_address);
+    let mut addresses_string = "".to_string();
+    if ! data.is_empty() {
+        addresses_string = decode(data);
+    }
+
+    addresses_string.push_str(operator.as_account_hash().unwrap().clone().to_string().as_str());
+    addresses_string.push('|');
+
+    storage::dictionary_put(operators_uref, to_str(owner).as_str(), encode(addresses_string));
 }
 
 pub fn make_array(operators_uref: URef, owner: Address) -> Vec<Address> {
-    let arrays_address: String = storage::dictionary_get(
+    let data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_revert()
         .unwrap_or_default();
 
+    let addresses_string = decode(data);
+
     let list = Vec::from_iter(
-        arrays_address.split('|')
+        addresses_string.split('|')
             .map(String::from)
             .filter(|value | ! value.is_empty())
     );
 
-    let new_list = Vec::from_iter(
+    Vec::from_iter(
         list.iter()
             .map(
-                |value
-                | AccountHash::from_formatted_str(value).unwrap()
-            )
-    );
-
-    Vec::from_iter(
-        new_list.iter()
-            .map(
-                | &value
-                | Account(value)
+                | value
+                | Account(AccountHash::from_formatted_str(value).unwrap())
             )
     )
 }
@@ -132,6 +133,14 @@ pub(crate) fn to_str(owner: Address) -> String {
     let key_bytes = owner.to_bytes().unwrap_or_revert();
     let hash = runtime::blake2b(&key_bytes);
     hex::encode(&hash)
+}
+
+fn encode(data: String) -> String {
+    base64::encode(data)
+}
+
+fn decode(data: String) -> String {
+    String::from_vec(base64::decode(data).unwrap()).unwrap_or_default().0
 }
 
 pub(crate) fn to_bytes(address: Address) -> Vec<u8> {

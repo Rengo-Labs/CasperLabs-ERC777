@@ -1,5 +1,5 @@
 [package]
-name = "erc20-tests"
+name = "erc777-tests"
 version = "0.1.0"
 authors = ["Michał Papierski <michal@casperlabs.io>"]
 edition = "2018"
@@ -15,7 +15,7 @@ hex = "0.4.3"
 
 
 [[bin]]
-name = "erc20-tests"
+name = "erc777-tests"
 path = "src/integration_tests.rs"
 bench = false
 doctest = false

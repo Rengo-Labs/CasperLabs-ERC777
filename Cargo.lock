@@ -131,7 +131,6 @@ dependencies = [
  "casper-contract",
  "casper-types",
  "hex",
- "json",
  "once_cell",
 ]
 
@@ -440,7 +439,6 @@ dependencies = [
  "casper-erc20",
  "casper-types",
  "hex",
- "json",
 ]
 
 [[package]]
@@ -450,6 +448,19 @@ dependencies = [
  "casper-contract",
  "casper-erc20",
  "casper-types",
+]
+
+[[package]]
+name = "erc777-tests"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "blake2",
+ "casper-contract",
+ "casper-engine-test-support",
+ "casper-erc20",
+ "casper-types",
+ "hex",
 ]
 
 [[package]]
@@ -616,12 +627,6 @@ name = "itoa"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8b7a7c0c47db5545ed3fef7468ee7bb5b74691498139e4b3f6a20685dc6dd8e"
-
-[[package]]
-name = "json"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "078e285eafdfb6c4b434e0d31e8cfcb5115b651496faca5749b88fafd4f23bfd"
 
 [[package]]
 name = "k256"

@@ -452,9 +452,9 @@ impl ERC20 {
         let operators_dictionary_key = {
             let caller = detail::get_caller_address()?;
             for &operator in operators_list.iter() {
-                operators::write_operators(
+                operators::concat_in_string(
                     operators_uref,
-                    operators::to_str(caller).as_str(),
+                    caller,
                     operator
                 );
             }
