@@ -6,7 +6,8 @@ members = [
     "testing/erc20-test-call",
     "example/erc20-token",
     "example/erc20-tests",
-    "example/erc777-tests"
+    "example/erc777-tests",
+    "erc1820"
 ]
 default-members = [
     "erc20",
@@ -14,7 +15,8 @@ default-members = [
     "testing/erc20-test",
     "testing/erc20-test-call",
     "example/erc20-tests",
-    "example/erc777-tests"
+    "example/erc777-tests",
+    "erc1820"
 ]
 
 [profile.release]

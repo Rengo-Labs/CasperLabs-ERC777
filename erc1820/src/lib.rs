@@ -15,11 +15,16 @@
 
 extern crate alloc;
 extern crate casper_types;
+extern crate casper_contract;
+extern crate once_cell;
 
 mod address;
 pub mod constants;
 pub mod entry_points;
 mod error;
+mod implementers_registry;
+mod managers_registry;
+mod detail;
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -31,57 +36,119 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef}, ContractHash, RuntimeArgs};
+use casper_types::{
+    bytesrepr::Bytes,
+    {contracts::NamedKeys, EntryPoints, Key, URef, U256},
+    ContractHash, RuntimeArgs, account::AccountHash
+};
 
 pub use address::Address;
-use constants::{ERC820_REGISTRY_CONTRACT_NAME, NAME_KEY_NAME};
+
+use constants::{
+    ERC1820_REGISTRY_CONTRACT_NAME, IMPLEMENTERS_REGISTRY_KEY_NAME, MANAGERS_REGISTRY_KEY_NAME
+};
 pub use error::Error;
 
 #[derive(Default)]
-pub struct ERC820 {
-    registry_uref: OnceCell<URef>
+pub struct ERC1820 {
+    implementer_uref: OnceCell<URef>,
+    manager_uref: OnceCell<URef>
 }
 
-impl ERC820 {
-    fn new(registry_uref: URef) -> Self {
+impl ERC1820 {
+    fn new(implementer_uref: URef, manager_uref: URef) -> Self {
         Self {
-            registry_uref: registry_uref.into()
+            implementer_uref: implementer_uref.into(),
+            manager_uref: manager_uref.into()
         }
     }
 
-    fn initialization() {
-        let token_contract: Key = runtime::get_key(REGISTRY_CONTRACT_NAME)
-            .unwrap();
-
-        runtime::call_contract(
-            ContractHash(token_contract.into_hash().unwrap()),
-            casper_erc20::constants::TOTAL_SUPPLY_ENTRY_POINT_NAME,
-            RuntimeArgs::default(),
-        );
+    fn implementer_registry_uref(&self) -> URef {
+        *self.implementer_uref.get_or_init(implementers_registry::implementers_registry)
     }
 
-    /// Installs the ERC20 contract with the default set of entry points.
+    fn managers_registry_uref(&self) -> URef {
+        *self.manager_uref.get_or_init(managers_registry::managers_registry)
+    }
+
+    /// Installs the ERC1820 contract with the default set of entry points.
     ///
     /// This should be called from within `fn call()` of your contract.
     pub fn install(
-        name: String
-    ) -> Result<ERC820, Error> {
+    ) -> Result<ERC1820, Error> {
         let default_entry_points = entry_points::default();
-        ERC20::install_custom(
-            name,
-            ERC820_REGISTRY_CONTRACT_NAME,
+        ERC1820::install_custom(
+            ERC1820_REGISTRY_CONTRACT_NAME,
             default_entry_points,
         )
     }
 
     /// Returns the name of the token.
-    pub fn set_interface_implementer(&self) -> String {
-        detail::read_from(NAME_KEY_NAME)
+    pub fn set_interface_implementer(
+        &self,
+        account: AccountHash,
+        i_hash: Bytes,
+        implementer: AccountHash
+    ) -> Result<(), Error> {
+        implementers_registry::create_or_update_implementer(
+            self.implementer_registry_uref(),
+            account,
+            i_hash,
+            implementer
+        );
+        Ok(())
     }
 
     /// Returns the symbol of the token.
-    pub fn get_interface_implementer(&self) -> String {
-        detail::read_from(NAME_KEY_NAME)
+    pub fn get_interface_implementer(&self, account: AccountHash, i_hash: Bytes) -> Result<AccountHash, Error> {
+        let result = implementers_registry::get_implementer(
+            self.implementer_registry_uref(),
+            account,
+            i_hash
+        );
+
+        Ok(result)
+    }
+
+    /// it adds a new manager for performing operations
+    pub fn set_manager(&self, account: AccountHash, new_manager: AccountHash) -> Result<(), Error> {
+        managers_registry::set_manager(
+            self.managers_registry_uref(),
+            account,
+            new_manager
+        );
+
+        Ok(())
+    }
+
+    /// it returns a manager for the parameter account
+    pub fn get_manager(&self, account: AccountHash) -> Result<AccountHash, Error> {
+        let manager = managers_registry::get_manager(
+            self.implementer_registry_uref(),
+            account
+        );
+
+        Ok(manager)
+    }
+
+    /// it returns an interface hash for an interface name
+    pub fn interface_hash(&self) {
+
+    }
+
+    /// it updates erc165 cache
+    pub fn update_erc165_cache(&self) {
+
+    }
+
+    ///
+    pub fn implements_erc165_interface(&self) {
+
+    }
+
+    ///
+    pub fn implements_erc165_interfaceNoCache(&self) {
+
     }
 
     /// Installs the ERC20 contract with a custom set of entry points.
@@ -93,20 +160,21 @@ impl ERC820 {
     /// lead to problems with integrators such as wallets, and exchanges.
     #[doc(hidden)]
     pub fn install_custom(
-        name: String,
         contract_key_name: &str,
         entry_points: EntryPoints,
-    ) -> Result<ERC820, Error> {
-        let registry_uref = storage::new_dictionary(NAME_KEY_NAME).unwrap_or_revert();
+    ) -> Result<ERC1820, Error> {
+        let implementer_uref = storage::new_dictionary(IMPLEMENTERS_REGISTRY_KEY_NAME)
+            .unwrap_or_revert();
+        let manager_uref = storage::new_dictionary(MANAGERS_REGISTRY_KEY_NAME)
+            .unwrap_or_revert();
 
         let mut named_keys = NamedKeys::new();
 
-        let name_key = {
-            let name_uref = storage::new_uref(name).into_read();
-            Key::from(name_uref)
-        };
+        let implementer_key = Key::from(implementer_uref);
+        let manager_key = Key::from(manager_uref);
 
-        named_keys.insert(NAME_KEY_NAME.to_string(), name_key);
+        named_keys.insert(IMPLEMENTERS_REGISTRY_KEY_NAME.to_string(), implementer_key);
+        named_keys.insert(MANAGERS_REGISTRY_KEY_NAME.to_string(), manager_key);
 
         let (contract_hash, _version) =
             storage::new_locked_contract(entry_points, Some(named_keys), None, None);
@@ -114,8 +182,9 @@ impl ERC820 {
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
 
-        Ok(ERC820::new(
-            registry_uref
+        Ok(ERC1820::new(
+            implementer_uref,
+            manager_uref
         ))
     }
 }

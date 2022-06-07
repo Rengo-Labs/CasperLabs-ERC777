@@ -1,16 +1,23 @@
 //! Constants used by the ERC20 contract.
+pub const ERC777_SENDER_CONTRACT_NAME: &str = "erc777_sender_contract";
+pub const MOVEMENTS_REGISTRY_KEY_NAME: &str = "movement_registry";
 
-pub const NAME_KEY_NAME: &str = "name";
-pub const ERC820_REGISTRY_CONTRACT_NAME: &str = "erc820_registry";
-
-/// Entry points
-pub const SET_INTERFACE_ENTRY_POINT: &str = "set_interface_implementer";
-pub const GET_INTERFACE_ENTRY_POINT: &str = "get_interface_implementer";
+/// Entry point
+pub const TOKENS_TO_SEND_ENTRY_POINT: &str = "tokens_to_send";
 
 /// Entry point's parameter
-pub const ACCOUNT_RUNTIME_ARG_NAME: &str = "account";
-pub const I_HASH_RUNTIME_ARG_NAME: &str = "interface_hash";
-pub const IMPLEMENTER_RUNTIME_ARG_NAME: &str = "implementer";
+/// Parameter operator
+pub const OPERATOR_RUNTIME_ARG_NAME: &str = "operator";
+/// Parameter from
+pub const FROM_RUNTIME_ARG_NAME: &str = "from";
+/// Parameter to
+pub const TO_RUNTIME_ARG_NAME: &str = "to";
+/// Parameter amount
+pub const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
+/// Parameter user_data
+pub const USER_DATA_RUNTIME_ARG_NAME: &str = "user_data";
+/// Parameter operator_data
+pub const OPERATOR_DATA_RUNTIME_ARG_NAME: &str = "operator_data";
 
 
 

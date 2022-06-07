@@ -15,11 +15,14 @@
 
 extern crate alloc;
 extern crate casper_types;
+extern crate casper_contract;
+extern crate once_cell;
 
 mod address;
 pub mod constants;
 pub mod entry_points;
 mod error;
+mod recipient_notifier;
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -31,60 +34,53 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef}, ContractHash, RuntimeArgs};
+use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef}, ContractHash, RuntimeArgs, U256};
+use casper_types::account::AccountHash;
 
 pub use address::Address;
-use constants::{ERC820_REGISTRY_CONTRACT_NAME, NAME_KEY_NAME};
+use constants::{ERC777_RECIPIENT_CONTRACT_NAME, MOVEMENTS_REGISTRY};
 pub use error::Error;
 
 #[derive(Default)]
-pub struct ERC820 {
+pub struct ERC777Recipient {
     registry_uref: OnceCell<URef>
 }
 
-impl ERC820 {
+impl ERC777Recipient {
     fn new(registry_uref: URef) -> Self {
         Self {
             registry_uref: registry_uref.into()
         }
     }
 
-    fn initialization() {
-        let token_contract: Key = runtime::get_key(REGISTRY_CONTRACT_NAME)
-            .unwrap();
-
-        runtime::call_contract(
-            ContractHash(token_contract.into_hash().unwrap()),
-            casper_erc20::constants::TOTAL_SUPPLY_ENTRY_POINT_NAME,
-            RuntimeArgs::default(),
-        );
-    }
-
     /// Installs the ERC20 contract with the default set of entry points.
     ///
     /// This should be called from within `fn call()` of your contract.
     pub fn install(
-        name: String
-    ) -> Result<ERC820, Error> {
+        account: AccountHash
+    ) -> Result<ERC777Recipient, Error> {
         let default_entry_points = entry_points::default();
-        ERC20::install_custom(
-            name,
-            ERC820_REGISTRY_CONTRACT_NAME,
+        ERC777Recipient::install_custom(
+            account,
+            ERC777_RECIPIENT_CONTRACT_NAME,
             default_entry_points,
         )
     }
 
-    /// Returns the name of the token.
-    pub fn set_interface_implementer(&self) -> String {
-        detail::read_from(NAME_KEY_NAME)
+    /// The movements or creations are performed in a registered account `to`.
+    /// The type operation is conveyed by `from` being the zero address or not.
+    pub fn tokens_received(
+        operator: Address,
+        from: Address,
+        to: Address, amount: U256,
+        data: Bytes,
+        operator_data: Bytes
+    ) -> Result<(), Error> {
+        recipient_notifier::tokens_received(operator, from, to, amount, data, operator_data);
+        Ok(())
     }
 
-    /// Returns the symbol of the token.
-    pub fn get_interface_implementer(&self) -> String {
-        detail::read_from(NAME_KEY_NAME)
-    }
-
-    /// Installs the ERC20 contract with a custom set of entry points.
+    /// Installs the ERC777 Recipient contract with a custom set of entry points.
     ///
     /// # Warning
     ///
@@ -93,20 +89,17 @@ impl ERC820 {
     /// lead to problems with integrators such as wallets, and exchanges.
     #[doc(hidden)]
     pub fn install_custom(
-        name: String,
+        account: AccountHash,
         contract_key_name: &str,
         entry_points: EntryPoints,
-    ) -> Result<ERC820, Error> {
-        let registry_uref = storage::new_dictionary(NAME_KEY_NAME).unwrap_or_revert();
+    ) -> Result<ERC777Recipient, Error> {
+        let registry_uref = storage::new_dictionary(MOVEMENTS_REGISTRY).unwrap_or_revert();
 
         let mut named_keys = NamedKeys::new();
 
-        let name_key = {
-            let name_uref = storage::new_uref(name).into_read();
-            Key::from(name_uref)
-        };
+        let movement_key = Key::from(registry_uref);
 
-        named_keys.insert(NAME_KEY_NAME.to_string(), name_key);
+        named_keys.insert(MOVEMENTS_REGISTRY.to_string(), movement_key);
 
         let (contract_hash, _version) =
             storage::new_locked_contract(entry_points, Some(named_keys), None, None);
@@ -114,7 +107,7 @@ impl ERC820 {
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
 
-        Ok(ERC820::new(
+        Ok(ERC777Recipient::new(
             registry_uref
         ))
     }

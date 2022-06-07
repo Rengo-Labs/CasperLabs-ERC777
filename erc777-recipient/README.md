@@ -1,10 +1,13 @@
-# casper-erc20
+# casper-erc777 recipient
 
-A library for developing ERC20 tokens for the Casper network.
+A library for developing ERC777 tokens for the Casper network.
 
-To create an example ERC20 contract which uses this library, use the cargo-casper tool:
+This contract allows any contract that extend of this, is capable of receiving tokens. 
 
-```
-cargo install cargo-casper
-cargo casper --erc20 <PATH TO NEW PROJECT>
-```
+This contract lets token's holders know about the tokens are sent to them whenever
+they implement this interface. To do this, they must be registered on the ERC1820 registry contract.
+
+Its execution occurs after the token contract's state is updated.
+What's more, this contract may revert and prevent the operations from being executed.
+
+

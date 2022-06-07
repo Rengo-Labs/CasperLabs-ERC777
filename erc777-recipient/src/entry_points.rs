@@ -3,39 +3,30 @@ use alloc::{string::String, vec, vec::Vec};
 
 use casper_types::{
     {CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, Key},
-    bytesrepr::Bytes
+    bytesrepr::Bytes, U256
 };
 
 use crate::{
     address::Address,
 };
 use crate::constants::{
-    ACCOUNT_RUNTIME_ARG_NAME, GET_INTERFACE_ENTRY_POINT, I_HASH_RUNTIME_ARG_NAME,
-    IMPLEMENTER_RUNTIME_ARG_NAME, SET_INTERFACE_ENTRY_POINT
+    TOKENS_RECEIVED_ENTRY_POINT,
+    OPERATOR_RUNTIME_ARG_NAME, FROM_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME,
+    AMOUNT_RUNTIME_ARG_NAME, USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME
 };
 
-pub fn get_interface_implementer() -> EntryPoint {
+pub fn tokens_received() -> EntryPoint {
     EntryPoint::new(
-        String::from(GET_INTERFACE_ENTRY_POINT),
+        String::from(TOKENS_RECEIVED_ENTRY_POINT),
         vec![
-            Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(OPERATOR_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(FROM_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    )
-}
-
-pub fn set_interface_implementer() -> EntryPoint {
-    EntryPoint::new(
-        String::from(SET_INTERFACE_ENTRY_POINT),
-        vec![
-            Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
-            Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Address::cl_type())
-        ],
-        Address::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -44,7 +35,6 @@ pub fn set_interface_implementer() -> EntryPoint {
 /// Returns the default set of ERC20 token entry points.
 pub fn default() -> EntryPoints {
     let mut entry_points = EntryPoints::new();
-    entry_points.add_entry_point(set_interface_implementer());
-    entry_points.add_entry_point(get_interface_implementer());
+    entry_points.add_entry_point(tokens_received());
     entry_points
 }

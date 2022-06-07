@@ -474,7 +474,7 @@ impl ERC20 {
         named_keys.insert(OPERATORS_KEY_NAME.to_string(), operators_dictionary_key);
 
         let (contract_hash, _version) =
-            storage::new_locked_contract(entry_points, Some(named_keys), None, None);
+            storage::new_contract(entry_points, Some(named_keys), None, None);
 
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
