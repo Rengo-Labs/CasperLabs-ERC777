@@ -1,6 +1,6 @@
 //! A library for developing ERC20 tokens for the Casper network.
 //!
-//! The main functionality is provided via the [`ERC20`] struct, and is intended to be consumed by a
+//! The main functionality is provided via the [`ERC777Sender`] struct, and is intended to be consumed by a
 //! smart contract written to be deployed on the Casper network.
 //!
 //! To create an example ERC20 contract which uses this library, use the cargo-casper tool:
@@ -15,16 +15,17 @@
 
 extern crate alloc;
 extern crate casper_types;
+extern crate casper_contract;
+extern crate once_cell;
 
 mod address;
 pub mod constants;
 pub mod entry_points;
 mod error;
 mod sender_notifier;
+mod ierc777_sender;
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use core::convert::TryInto;
+use alloc::string::{ToString};
 
 use once_cell::unsync::OnceCell;
 
@@ -32,12 +33,16 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef}, ContractHash, RuntimeArgs, U256};
+use casper_types::{
+    bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef},
+    U256, account::AccountHash
+};
 
 pub use address::Address;
 use constants::{ERC777_SENDER_CONTRACT_NAME, MOVEMENTS_REGISTRY_KEY_NAME};
 pub use error::Error;
 
+/// Struct
 #[derive(Default)]
 pub struct ERC777Sender {
     registry_uref: OnceCell<URef>
@@ -54,12 +59,12 @@ impl ERC777Sender {
     ///
     /// This should be called from within `fn call()` of your contract.
     pub fn install(
-        name: String
+        account: AccountHash
     ) -> Result<ERC777Sender, Error> {
         let default_entry_points = entry_points::default();
         ERC777Sender::install_custom(
-            name,
-            ERC820_REGISTRY_CONTRACT_NAME,
+            account,
+            ERC777_SENDER_CONTRACT_NAME,
             default_entry_points,
         )
     }
@@ -68,9 +73,9 @@ impl ERC777Sender {
     /// it can be used to query the pre-operation state.
     /// This function may revert to prevent the operation from being executed.
     pub fn tokens_to_send(
-        operator: Address,
-        from: Address,
-        to: Address,
+        operator: AccountHash,
+        from: AccountHash,
+        to: AccountHash,
         amount: U256,
         user_data: Bytes,
         operator_data: Bytes
@@ -89,7 +94,7 @@ impl ERC777Sender {
     /// lead to problems with integrators such as wallets, and exchanges.
     #[doc(hidden)]
     pub fn install_custom(
-        name: String,
+        account: AccountHash,
         contract_key_name: &str,
         entry_points: EntryPoints,
     ) -> Result<ERC777Sender, Error> {

@@ -1,5 +1,7 @@
-//! Constants used by the ERC20 contract.
+//! Constants used by the ERC777 Sender contract.
+/// Contract Name
 pub const ERC777_SENDER_CONTRACT_NAME: &str = "erc777_sender_contract";
+/// Key name `movement_registry`
 pub const MOVEMENTS_REGISTRY_KEY_NAME: &str = "movement_registry";
 
 /// Entry point

@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod test_fixture;
+mod test_erc1820;
 
 #[cfg(test)]
 mod tests {
@@ -7,9 +8,11 @@ mod tests {
     use casper_types::bytesrepr::{Bytes};
     extern crate base64;
     use crate::test_fixture::{Sender, TestFixture};
+    use crate::test_erc1820::{TestERC1820};
 
     #[test]
     fn should_install() {
+        let erc1820 = TestERC1820::install_contract();
         let fixture = TestFixture::install_contract();
         assert_eq!(fixture.token_name(), TestFixture::TOKEN_NAME);
         assert_eq!(fixture.token_symbol(), TestFixture::TOKEN_SYMBOL);
@@ -25,6 +28,7 @@ mod tests {
         let approve_amount = U256::from(100);
         let transfer_amount = U256::from(42);
 
+        let mut erc1820 = TestERC1820::install_contract();
         let mut fixture = TestFixture::install_contract();
 
         let owner = fixture.ali;
@@ -87,6 +91,8 @@ mod tests {
     #[test]
     fn should_send_behalf_of() {
         let transfer_amount = U256::from(42);
+
+        let erc1820 = TestERC1820::install_contract();
         let mut fixture = TestFixture::install_contract();
 
         let owner = fixture.ali;
@@ -131,6 +137,7 @@ mod tests {
 
     #[test]
     fn should_burn_behalf_of() {
+        let erc1820 = TestERC1820::install_contract();
         let mut fixture = TestFixture::install_contract();
 
         let owner = fixture.ali;

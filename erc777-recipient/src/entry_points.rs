@@ -1,8 +1,8 @@
 //! Contains definition of the entry points.
-use alloc::{string::String, vec, vec::Vec};
+use alloc::{string::String, vec};
 
 use casper_types::{
-    {CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, Key},
+    {CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter},
     bytesrepr::Bytes, U256
 };
 
@@ -15,6 +15,7 @@ use crate::constants::{
     AMOUNT_RUNTIME_ARG_NAME, USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME
 };
 
+/// Entry Point `tokens_received`
 pub fn tokens_received() -> EntryPoint {
     EntryPoint::new(
         String::from(TOKENS_RECEIVED_ENTRY_POINT),
@@ -32,7 +33,7 @@ pub fn tokens_received() -> EntryPoint {
     )
 }
 
-/// Returns the default set of ERC20 token entry points.
+/// Returns the default set of ERC777 Recipient token entry points.
 pub fn default() -> EntryPoints {
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(tokens_received());

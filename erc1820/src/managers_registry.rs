@@ -1,5 +1,5 @@
 use alloc::collections::BTreeMap;
-use alloc::string::String;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use casper_types::bytesrepr::{Bytes, FromBytes, ToBytes};
 use casper_types::{CLType, CLTyped, URef};
@@ -11,15 +11,14 @@ use casper_contract::{
 };
 use constants::MANAGERS_REGISTRY_KEY_NAME;
 use detail::get_immediate_caller_address;
-use IMPLEMENTERS_REGISTRY_KEY_NAME;
 
 #[inline]
 pub(crate) fn managers_registry() -> URef {
     detail::get_uref(MANAGERS_REGISTRY_KEY_NAME)
 }
 
-pub fn set_manager(manager_uref: URef, account: AccountHash, manager: AccountHash) {
-    let mut hash_account = to_str(account);
+pub fn set_manager(manager_uref: URef, account: Address, manager: Address) {
+    let hash_account = to_str(account);
 
     storage::dictionary_put(
         manager_uref,
@@ -27,17 +26,17 @@ pub fn set_manager(manager_uref: URef, account: AccountHash, manager: AccountHas
         manager);
 }
 
-pub fn get_manager(manager_uref: URef, account: AccountHash) -> AccountHash {
+pub fn get_manager(manager_uref: URef, account: Address) -> Address {
     let hash_string = to_str(account);
-    let manager: AccountHash = storage::dictionary_get(
+    let manager: Address = storage::dictionary_get(
         manager_uref,
         hash_string.as_str()
-    ).unwrap_or_default().unwrap_or_default();
+    ).unwrap_or_default().unwrap_or_revert();
 
     manager
 }
 
-pub(crate) fn to_str(owner: AccountHash) -> String {
+pub(crate) fn to_str(owner: Address) -> String {
     let key_bytes = owner.to_bytes().unwrap();
     let hash = runtime::blake2b(&key_bytes);
     hex::encode(&hash)

@@ -4,8 +4,15 @@ casper-client put-deploy -n http://16.162.124.124:7777 \
 --session-arg "symbol:string='my_erc777'" \
 --session-arg "total_supply:u256='100000'" \
 --session-arg "granularity:u256='1'" \
---session-path /Users/raulvillca/n/erc20/target/wasm32-unknown-unknown/release/erc20_token.wasm \
+--session-path /Users/raulvillca/n/casp-777/target/wasm32-unknown-unknown/release/erc20_token.wasm \
 --payment-amount 40000000000
+
+casper-client put-deploy \
+--node-address http://16.162.124.124:7777 \
+--chain-name casper-test \
+--secret-key /Users/raulvillca/n/TestUser_key.pem \
+--session-path /Users/raulvillca/n/casp-777/target/wasm32-unknown-unknown/release/erc1820_registry.wasm \
+--payment-amount 10000000000
 
 casper-client put-deploy \
 --session-name erc20_token_contract \
@@ -13,6 +20,18 @@ casper-client put-deploy \
 --session-arg "recipient:Key='account-hash-675e10b7e268c61db84dbc4ddd0dc6c92230b6898e8d2109a3fdc49de8fedab4'" \
 --session-arg "amount:u256='150000000000'" \
 --session-arg "data:string=''" \
+--payment-amount 1000000000 \
+--chain-name casper-test \
+--node-address http://16.162.124.124:7777 \
+--secret-key /Users/raulvillca/n/TestUser_key.pem
+
+
+
+casper-client put-deploy \
+--session-name erc1820_registry \
+--session-entry-point set_manager \
+--session-arg "account:Key='account-hash-6bc21d981ab85c81b765879b74c70832551e1c2b83f149f6e8ac7fc54a74df40'" \
+--session-arg "new_manager:Key='account-hash-6bc21d981ab85c81b765879b74c70832551e1c2b83f149f6e8ac7fc54a74df40'" \
 --payment-amount 1000000000 \
 --chain-name casper-test \
 --node-address http://16.162.124.124:7777 \

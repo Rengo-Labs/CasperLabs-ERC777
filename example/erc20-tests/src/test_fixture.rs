@@ -6,7 +6,7 @@ use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextB
 use casper_erc20::{Address, constants as consts};
 use casper_types::{
     account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes, Bytes},
+    bytesrepr::{FromBytes, ToBytes},
     runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256, U512,
 };
 
@@ -115,11 +115,6 @@ impl TestFixture {
 
     pub fn token_symbol(&self) -> String {
         self.query_contract(consts::SYMBOL_RUNTIME_ARG_NAME)
-            .unwrap()
-    }
-
-    pub fn token_decimals(&self) -> u8 {
-        self.query_contract(consts::DECIMALS_RUNTIME_ARG_NAME)
             .unwrap()
     }
 

@@ -49,6 +49,7 @@ use constants::{
 };
 pub use error::Error;
 
+/// Struct
 #[derive(Default)]
 pub struct ERC1820 {
     implementer_uref: OnceCell<URef>,
@@ -74,8 +75,7 @@ impl ERC1820 {
     /// Installs the ERC1820 contract with the default set of entry points.
     ///
     /// This should be called from within `fn call()` of your contract.
-    pub fn install(
-    ) -> Result<ERC1820, Error> {
+    pub fn install() -> Result<ERC1820, Error> {
         let default_entry_points = entry_points::default();
         ERC1820::install_custom(
             ERC1820_REGISTRY_CONTRACT_NAME,
@@ -86,9 +86,9 @@ impl ERC1820 {
     /// Returns the name of the token.
     pub fn set_interface_implementer(
         &self,
-        account: AccountHash,
+        account: Address,
         i_hash: Bytes,
-        implementer: AccountHash
+        implementer: Address
     ) -> Result<(), Error> {
         implementers_registry::create_or_update_implementer(
             self.implementer_registry_uref(),
@@ -100,7 +100,7 @@ impl ERC1820 {
     }
 
     /// Returns the symbol of the token.
-    pub fn get_interface_implementer(&self, account: AccountHash, i_hash: Bytes) -> Result<AccountHash, Error> {
+    pub fn get_interface_implementer(&self, account: Address, i_hash: Bytes) -> Result<Address, Error> {
         let result = implementers_registry::get_implementer(
             self.implementer_registry_uref(),
             account,
@@ -111,7 +111,7 @@ impl ERC1820 {
     }
 
     /// it adds a new manager for performing operations
-    pub fn set_manager(&self, account: AccountHash, new_manager: AccountHash) -> Result<(), Error> {
+    pub fn set_manager(&self, account: Address, new_manager: Address) -> Result<(), Error> {
         managers_registry::set_manager(
             self.managers_registry_uref(),
             account,
@@ -122,17 +122,17 @@ impl ERC1820 {
     }
 
     /// it returns a manager for the parameter account
-    pub fn get_manager(&self, account: AccountHash) -> Result<AccountHash, Error> {
+    pub fn get_manager(&self, account: Address) -> Result<String, Error> {
         let manager = managers_registry::get_manager(
             self.implementer_registry_uref(),
             account
         );
 
-        Ok(manager)
+        Ok("Hola Munndo".to_string())
     }
 
     /// it returns an interface hash for an interface name
-    pub fn interface_hash(&self) {
+    pub fn interface_hash(&self, interface_name: String) {
 
     }
 
@@ -147,7 +147,7 @@ impl ERC1820 {
     }
 
     ///
-    pub fn implements_erc165_interfaceNoCache(&self) {
+    pub fn implements_erc165_interface_no_cache(&self) {
 
     }
 
@@ -170,8 +170,15 @@ impl ERC1820 {
 
         let mut named_keys = NamedKeys::new();
 
-        let implementer_key = Key::from(implementer_uref);
-        let manager_key = Key::from(manager_uref);
+        let implementer_key = {
+            runtime::remove_key(IMPLEMENTERS_REGISTRY_KEY_NAME);
+            Key::from(implementer_uref)
+        };
+
+        let manager_key = {
+            runtime::remove_key(MANAGERS_REGISTRY_KEY_NAME);
+            Key::from(manager_uref)
+        };
 
         named_keys.insert(IMPLEMENTERS_REGISTRY_KEY_NAME.to_string(), implementer_key);
         named_keys.insert(MANAGERS_REGISTRY_KEY_NAME.to_string(), manager_key);

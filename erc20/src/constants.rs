@@ -95,7 +95,7 @@ pub const TOKEN_HOLDER_RUNTIME_ARG_NAME: &str = "token_holder";
 pub const ACCOUNT_RUNTIME_ARG_NAME: &str = "account";
 
 /// External contracts
-pub const REGISTRY_CONTRACT_NAME: &str = "registry_contract";
+pub const REGISTRY_CONTRACT_NAME: &str = "erc1820_registry";
 /// External contracts
 pub const ERC777_SENDER_CONTRACT_NAME: &str = "erc777_sender_contract";
 /// External contracts
@@ -119,4 +119,8 @@ pub const I_HASH_RUNTIME_ARG_NAME: &str = "i_hash";
 /// Name of `implementer` runtime argument.
 pub const IMPLEMENTER_RUNTIME_ARG_NAME: &str = "implementer";
 
+/// Hash ERC1820
+pub const HASH_ERC1820_SENDER: &str = "ERC777TokensSender";
+pub const HASH_ERC1820_RECIPIENT: &str = "ERC777TokensRecipient";
+//pub const HASH_ERC1820_REGISTRY: &str = "hash-0658278e8e141ed941ea11187c08752f8c995e20b43ed2f222fb5bd91e85bf08";
 

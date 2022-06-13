@@ -1,6 +1,6 @@
 # casper-erc777 recipient
 
-A library for developing ERC777 tokens for the Casper network.
+A library for implementing ERC777Recipient for ERC777 contracts receiving token on the Casper network.
 
 This contract allows any contract that extend of this, is capable of receiving tokens. 
 
@@ -10,4 +10,11 @@ they implement this interface. To do this, they must be registered on the ERC182
 Its execution occurs after the token contract's state is updated.
 What's more, this contract may revert and prevent the operations from being executed.
 
+club 77
+
+250$ Raqueta
+2400 Cancha hora y media
+rodear plaza 
+
+bucharto gustar 1731 - quintana y bernardo irigoyen.
 

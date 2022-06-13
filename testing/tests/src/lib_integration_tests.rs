@@ -12,19 +12,19 @@ use casper_types::{
 };
 
 const EXAMPLE_ERC20_TOKEN: &str = "erc20_token.wasm";
+const EXAMPLE_ERC1820_TOKEN: &str = "erc1820_registry.wasm";
 const CONTRACT_ERC20_TEST: &str = "erc20_test.wasm";
 const CONTRACT_ERC20_TEST_CALL: &str = "erc20_test_call.wasm";
 const NAME_KEY: &str = "name";
 const SYMBOL_KEY: &str = "symbol";
 const ERC20_TOKEN_CONTRACT_KEY: &str = "erc20_token_contract";
-const DECIMALS_KEY: &str = "decimals";
+const ERC1820_REGISTRY_CONTRACT_KEY: &str = "erc1820_registry";
 const TOTAL_SUPPLY_KEY: &str = "total_supply";
 const BALANCES_KEY: &str = "balances";
 const ALLOWANCES_KEY: &str = "allowances";
 
 const ARG_NAME: &str = "name";
 const ARG_SYMBOL: &str = "symbol";
-const ARG_DECIMALS: &str = "decimals";
 const ARG_OPERATORS: &str = "operators";
 const ARG_GRANULARITY: &str = "granularity";
 const ARG_TOTAL_SUPPLY: &str = "total_supply";
@@ -38,7 +38,6 @@ const ERROR_OVERFLOW: u16 = u16::MAX - 3;
 
 const TOKEN_NAME: &str = "CasperTest";
 const TOKEN_SYMBOL: &str = "CSPRT";
-const TOKEN_DECIMALS: u8 = 100;
 const TOKEN_GRANULARITY: u8 = 1;
 const TOKEN_TOTAL_SUPPLY: u64 = 1_000_000_000;
 
@@ -107,6 +106,7 @@ struct TestContext {
     erc20_token: ContractHash,
     test_contract: ContractHash,
     erc20_test_call: ContractPackageHash,
+    erc1820_registry: ContractHash
 }
 
 fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
@@ -154,9 +154,16 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         RuntimeArgs::default(),
     )
     .build();
+    let install_request_4 = ExecuteRequestBuilder::standard(
+        *DEFAULT_ACCOUNT_ADDR,
+        EXAMPLE_ERC1820_TOKEN,
+        RuntimeArgs::default(),
+    )
+        .build();
 
     builder.exec(transfer_request_1).expect_success().commit();
     builder.exec(transfer_request_2).expect_success().commit();
+    builder.exec(install_request_4).expect_success().commit();
     builder.exec(install_request_1).expect_success().commit();
     builder.exec(install_request_2).expect_success().commit();
     builder.exec(install_request_3).expect_success().commit();
@@ -164,6 +171,13 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     let account = builder
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
+
+    let erc1820_registry = account
+        .named_keys()
+        .get(ERC1820_REGISTRY_CONTRACT_KEY)
+        .and_then(|key| key.into_hash())
+        .map(ContractHash::new)
+        .expect("should have contract hash");
 
     let erc20_token = account
         .named_keys()
@@ -190,6 +204,7 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         erc20_token,
         test_contract,
         erc20_test_call,
+        erc1820_registry
     };
 
     (builder, test_context)
@@ -501,9 +516,6 @@ fn should_have_queryable_properties() {
 
     let symbol: String = builder.get_value(erc20_token, SYMBOL_KEY);
     assert_eq!(symbol, TOKEN_SYMBOL);
-
-    //let decimals: u8 = builder.get_value(erc20_token, DECIMALS_KEY);
-    //assert_eq!(decimals, TOKEN_DECIMALS);
 
     let total_supply: U256 = builder.get_value(erc20_token, TOTAL_SUPPLY_KEY);
     assert_eq!(total_supply, U256::from(TOKEN_TOTAL_SUPPLY));

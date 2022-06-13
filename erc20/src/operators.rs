@@ -7,7 +7,7 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_contract::contract_api::runtime;
-use casper_types::{bytesrepr::{ToBytes, FromBytes}, URef, U256, Key, account::AccountHash};
+use casper_types::{bytesrepr::{ToBytes, FromBytes}, URef, account::AccountHash};
 use crate::{constants::OPERATORS_KEY_NAME, detail, Address};
 use crate::Address::Account;
 
@@ -88,7 +88,7 @@ pub fn get_rid_of(operators_uref: URef, owner: Address, operator: Address) {
 
 pub fn concat_in_string(operators_uref: URef, owner: Address, operator: Address) {
 
-    let mut data: String = storage::dictionary_get(
+    let data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
     ).unwrap_or_revert()

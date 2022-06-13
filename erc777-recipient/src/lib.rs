@@ -1,6 +1,6 @@
 //! A library for developing ERC20 tokens for the Casper network.
 //!
-//! The main functionality is provided via the [`ERC20`] struct, and is intended to be consumed by a
+//! The main functionality is provided via the [`ERC777Recipient`] struct, and is intended to be consumed by a
 //! smart contract written to be deployed on the Casper network.
 //!
 //! To create an example ERC20 contract which uses this library, use the cargo-casper tool:
@@ -23,24 +23,24 @@ pub mod constants;
 pub mod entry_points;
 mod error;
 mod recipient_notifier;
+mod ierc777_recipient;
 
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use core::convert::TryInto;
-
+use alloc::string::{ToString};
 use once_cell::unsync::OnceCell;
 
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef}, ContractHash, RuntimeArgs, U256};
-use casper_types::account::AccountHash;
+use casper_types::{
+    bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef},
+    U256, account::AccountHash
+};
 
-pub use address::Address;
-use constants::{ERC777_RECIPIENT_CONTRACT_NAME, MOVEMENTS_REGISTRY};
-pub use error::Error;
+use constants::{ERC777_RECIPIENT_CONTRACT_NAME, BALANCES_REGISTRY};
+use error::Error;
 
+/// Struct
 #[derive(Default)]
 pub struct ERC777Recipient {
     registry_uref: OnceCell<URef>
@@ -53,7 +53,7 @@ impl ERC777Recipient {
         }
     }
 
-    /// Installs the ERC20 contract with the default set of entry points.
+    /// Installs the ERC777Recipient contract with the default set of entry points.
     ///
     /// This should be called from within `fn call()` of your contract.
     pub fn install(
@@ -70,9 +70,10 @@ impl ERC777Recipient {
     /// The movements or creations are performed in a registered account `to`.
     /// The type operation is conveyed by `from` being the zero address or not.
     pub fn tokens_received(
-        operator: Address,
-        from: Address,
-        to: Address, amount: U256,
+        operator: AccountHash,
+        from: AccountHash,
+        to: AccountHash,
+        amount: U256,
         data: Bytes,
         operator_data: Bytes
     ) -> Result<(), Error> {
@@ -93,13 +94,13 @@ impl ERC777Recipient {
         contract_key_name: &str,
         entry_points: EntryPoints,
     ) -> Result<ERC777Recipient, Error> {
-        let registry_uref = storage::new_dictionary(MOVEMENTS_REGISTRY).unwrap_or_revert();
+        let registry_uref = storage::new_dictionary(BALANCES_REGISTRY).unwrap_or_revert();
 
         let mut named_keys = NamedKeys::new();
 
         let movement_key = Key::from(registry_uref);
 
-        named_keys.insert(MOVEMENTS_REGISTRY.to_string(), movement_key);
+        named_keys.insert(BALANCES_REGISTRY.to_string(), movement_key);
 
         let (contract_hash, _version) =
             storage::new_locked_contract(entry_points, Some(named_keys), None, None);

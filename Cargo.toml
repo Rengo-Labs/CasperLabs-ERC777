@@ -1,22 +1,24 @@
 [workspace]
 members = [
     "erc20",
-    "testing/tests",
     "testing/erc20-test",
     "testing/erc20-test-call",
     "example/erc20-token",
     "example/erc20-tests",
     "example/erc777-tests",
-    "erc1820"
+    "erc1820",
+    "example/erc1820-registry",
+    "example/erc1820-registry-tests"
 ]
 default-members = [
     "erc20",
-    "testing/tests",
     "testing/erc20-test",
     "testing/erc20-test-call",
     "example/erc20-tests",
     "example/erc777-tests",
-    "erc1820"
+    "erc1820",
+    "example/erc1820-registry",
+    "example/erc1820-registry-tests"
 ]
 
 [profile.release]

@@ -1,11 +1,13 @@
-use casper_types::bytesrepr::Bytes;
-use casper_types::U256;
-use Address;
+use casper_types::{
+    account::AccountHash,
+    bytesrepr::Bytes,
+    U256
+};
 
-pub fn tokens_received(
-    operator: Address,
-    from: Address,
-    to: Address,
+pub(crate) fn tokens_received(
+    operator: AccountHash,
+    from: AccountHash,
+    to: AccountHash,
     amount: U256,
     data: Bytes,
     operator_data: Bytes

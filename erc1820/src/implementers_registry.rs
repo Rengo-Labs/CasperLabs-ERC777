@@ -9,9 +9,8 @@ use casper_contract::{
     contract_api::{runtime, storage}
 };
 use address::Address::Account;
-use constants::MANAGERS_REGISTRY_KEY_NAME;
+use constants::IMPLEMENTERS_REGISTRY_KEY_NAME;
 use detail::get_immediate_caller_address;
-use IMPLEMENTERS_REGISTRY_KEY_NAME;
 
 #[inline]
 pub(crate) fn implementers_registry() -> URef {
@@ -20,20 +19,20 @@ pub(crate) fn implementers_registry() -> URef {
 
 pub fn create_or_update_implementer(
     implementer_uref: URef,
-    account: AccountHash,
+    account: Address,
     interface_hash: Bytes,
-    implementer: AccountHash
+    implementer: Address
 ) {
-    let mut hash_string: String;
+    let hash_string: String;
 
-    if AccountHash::default().eq(&account) {
+    if AccountHash::default().eq(account.as_account_hash().unwrap()) {
         let caller = get_immediate_caller_address().unwrap_or(Account(AccountHash::default()));
-        hash_string = to_str(*caller.as_account_hash().unwrap())
+        hash_string = to_str(caller);
     } else {
         hash_string = to_str(account);
     }
 
-    let mut implementers: BTreeMap<Bytes, AccountHash> = storage::dictionary_get(
+    let mut implementers: BTreeMap<Bytes, Address> = storage::dictionary_get(
         implementer_uref,
         hash_string.as_str()
     ).unwrap_or_default().unwrap_or_default();
@@ -46,9 +45,9 @@ pub fn create_or_update_implementer(
         implementers);
 }
 
-pub fn get_implementer(implementer_uref: URef, account: AccountHash, interface_hash: Bytes) -> AccountHash {
+pub fn get_implementer(implementer_uref: URef, account: Address, interface_hash: Bytes) -> Address {
     let hash_string = to_str(account);
-    let implements: BTreeMap<Bytes, AccountHash> = storage::dictionary_get(
+    let implements: BTreeMap<Bytes, Address> = storage::dictionary_get(
         implementer_uref,
         hash_string.as_str()
     ).unwrap_or_default().unwrap_or_default();
@@ -56,7 +55,7 @@ pub fn get_implementer(implementer_uref: URef, account: AccountHash, interface_h
     *implements.get(&interface_hash).unwrap()
 }
 
-pub(crate) fn to_str(owner: AccountHash) -> String {
+pub(crate) fn to_str(owner: Address) -> String {
     let key_bytes = owner.to_bytes().unwrap();
     let hash = runtime::blake2b(&key_bytes);
     hex::encode(&hash)

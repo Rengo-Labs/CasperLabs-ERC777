@@ -51,7 +51,6 @@ pub use error::Error;
 use crate::constants::{
     DECIMALS_KEY_VALUE, GRANULARITY_KEY_NAME, OPERATORS_KEY_NAME
 };
-use crate::external_contracts::initialization;
 
 /// Implementation of ERC20 standard functionality.
 #[derive(Default)]

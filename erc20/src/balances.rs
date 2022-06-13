@@ -2,12 +2,13 @@
 use alloc::string::String;
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
-use casper_types::{bytesrepr::{ToBytes, Bytes}, URef, U256};
+use casper_types::{bytesrepr::{ToBytes, Bytes}, URef, U256, ContractPackageHash};
 use casper_types::account::AccountHash;
 
 use crate::{constants::BALANCES_KEY_NAME, detail, error::Error, Address};
 use crate::Address::Account;
-use crate::external_contracts::{tokens_received, tokens_to_send};
+use crate::constants::{HASH_ERC1820_RECIPIENT, HASH_ERC1820_SENDER};
+use crate::external_contracts::{get_interface, tokens_received, tokens_to_send};
 
 /// Creates a dictionary item key for a dictionary item.
 #[inline]
@@ -96,12 +97,38 @@ pub(crate) fn send_balance(
         return Err(Error::InvalidOperator);
     }
 
-    tokens_to_send(sender, sender, recipient, amount, data.clone(), operator_data.clone());
+    let implementer = get_interface(
+        sender,
+        Bytes::from(HASH_ERC1820_SENDER.to_bytes().unwrap())
+    ).unwrap_or_revert();
+
+    if ContractPackageHash::default().ne(implementer.as_contract_package_hash().unwrap()) {
+        tokens_to_send(
+            sender,
+            sender,
+            recipient,
+            amount,
+            data.clone(),
+            operator_data.clone());
+    }
 
     transfer_balance(balances_uref, sender, recipient, amount);
     //todo if is a contract, I need to implement registry interface.
     //todo problem of scope
-    tokens_received(sender, sender, recipient, amount, data.clone(), operator_data.clone());
+    let implementer = get_interface(
+        sender,
+        Bytes::from(HASH_ERC1820_RECIPIENT.to_bytes().unwrap())
+    ).unwrap_or_revert();
+
+    if ContractPackageHash::default().ne(implementer.as_contract_package_hash().unwrap()) {
+        tokens_received(
+            sender,
+            sender,
+            recipient,
+            amount,
+            data.clone(),
+            operator_data.clone());
+    }
 
     //TODO send a Transfer event if is an erc20
     Ok(())
@@ -123,8 +150,21 @@ pub fn mint(
 
     write_balance_to(balances_uref, owner, new_balance);
 
-    //todo Address 0x00
-    //tokens_received(owner, owner, recipient, amount, data.clone(), operator_data.clone());
+    let implementer = get_interface(
+        owner,
+        Bytes::from(HASH_ERC1820_RECIPIENT.to_bytes().unwrap())
+    ).unwrap_or_revert();
+
+    if ContractPackageHash::default().ne(implementer.as_contract_package_hash().unwrap()) {
+        tokens_received(
+            Account(AccountHash::default()),
+            Account(AccountHash::default()),
+            owner,
+            amount,
+            Bytes::default(),
+            Bytes::default());
+    }
+
     Ok(new_total_supply)
 }
 
@@ -141,8 +181,20 @@ pub fn burn(
         return Err(Error::InvalidOperator);
     }
 
-    // todo Address 0x00
-    tokens_to_send(owner, owner, Account(AccountHash::new([42; 32])), amount, data.clone(), operator_data.clone());
+    let implementer = get_interface(
+        owner,
+        Bytes::from(HASH_ERC1820_SENDER.to_bytes().unwrap())
+    ).unwrap_or_revert();
+
+    if ContractPackageHash::default().ne(implementer.as_contract_package_hash().unwrap()) {
+        tokens_to_send(
+            owner,
+            owner,
+            Account(AccountHash::default()),
+            amount,
+            data.clone(),
+            operator_data.clone());
+    }
 
     let new_balance = {
         let balance = read_balance_from(balances_uref, owner);
