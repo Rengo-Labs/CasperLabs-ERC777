@@ -146,6 +146,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "casper-erc777-recipient"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "casper-contract",
+ "casper-types",
+ "hex",
+ "once_cell",
+]
+
+[[package]]
+name = "casper-erc777-sender"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "casper-contract",
+ "casper-types",
+ "hex",
+ "once_cell",
+]
+
+[[package]]
 name = "casper-execution-engine"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -428,7 +450,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "erc1820-registry-tests"
+name = "erc1820-tests"
 version = "0.1.0"
 dependencies = [
  "base64",
@@ -441,29 +463,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "erc20-test"
-version = "0.1.0"
-dependencies = [
- "casper-contract",
- "casper-erc20",
- "casper-types",
-]
-
-[[package]]
-name = "erc20-test-call"
-version = "0.1.0"
-dependencies = [
- "base64",
- "blake2",
- "casper-contract",
- "casper-erc20",
- "casper-types",
- "hex",
-]
-
-[[package]]
 name = "erc20-tests"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "base64",
  "blake2",
@@ -476,7 +477,7 @@ dependencies = [
 
 [[package]]
 name = "erc20-token"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "casper-contract",
  "casper-erc20",
@@ -484,8 +485,58 @@ dependencies = [
 ]
 
 [[package]]
+name = "erc777-recipient-contract"
+version = "0.0.1"
+dependencies = [
+ "casper-contract",
+ "casper-erc777-recipient",
+ "casper-types",
+]
+
+[[package]]
+name = "erc777-recipient-tests"
+version = "0.0.1"
+dependencies = [
+ "base64",
+ "blake2",
+ "casper-contract",
+ "casper-engine-test-support",
+ "casper-erc1820",
+ "casper-erc20",
+ "casper-erc777-recipient",
+ "casper-types",
+ "hex",
+ "once_cell",
+]
+
+[[package]]
+name = "erc777-sender-contract"
+version = "0.0.1"
+dependencies = [
+ "casper-contract",
+ "casper-erc777-sender",
+ "casper-types",
+]
+
+[[package]]
+name = "erc777-sender-tests"
+version = "0.0.1"
+dependencies = [
+ "base64",
+ "blake2",
+ "casper-contract",
+ "casper-engine-test-support",
+ "casper-erc1820",
+ "casper-erc20",
+ "casper-erc777-sender",
+ "casper-types",
+ "hex",
+ "once_cell",
+]
+
+[[package]]
 name = "erc777-tests"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "base64",
  "blake2",
@@ -495,6 +546,7 @@ dependencies = [
  "casper-erc20",
  "casper-types",
  "hex",
+ "once_cell",
 ]
 
 [[package]]

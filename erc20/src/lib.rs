@@ -37,20 +37,17 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
-    bytesrepr::Bytes,
     {contracts::NamedKeys, EntryPoints, Key, URef, U256},
-    ContractHash, RuntimeArgs
+    ContractHash
 };
 
 pub use address::Address;
 use constants::{
-    ALLOWANCES_KEY_NAME, BALANCES_KEY_NAME, DECIMALS_KEY_NAME, ERC20_TOKEN_CONTRACT_KEY_NAME,
+    ALLOWANCES_KEY_NAME, BALANCES_KEY_NAME, DECIMALS_KEY_NAME, ERC20_TOKEN_CONTRACT_NAME,
     NAME_KEY_NAME, SYMBOL_KEY_NAME, TOTAL_SUPPLY_KEY_NAME,
+    DECIMALS_KEY_VALUE, GRANULARITY_KEY_NAME, OPERATORS_KEY_NAME, REGISTRY_CONTRACT_NAME
 };
 pub use error::Error;
-use crate::constants::{
-    DECIMALS_KEY_VALUE, GRANULARITY_KEY_NAME, OPERATORS_KEY_NAME
-};
 
 /// Implementation of ERC20 standard functionality.
 #[derive(Default)]
@@ -58,16 +55,18 @@ pub struct ERC20 {
     balances_uref: OnceCell<URef>,
     allowances_uref: OnceCell<URef>,
     total_supply_uref: OnceCell<URef>,
-    operators_uref: OnceCell<URef>
+    operators_uref: OnceCell<URef>,
+    registry_uref: OnceCell<URef>
 }
 
 impl ERC20 {
-    fn new(balances_uref: URef, allowances_uref: URef, total_supply_uref: URef, operators_uref: URef) -> Self {
+    fn new(balances_uref: URef, allowances_uref: URef, total_supply_uref: URef, operators_uref: URef, registry_uref: URef) -> Self {
         Self {
             balances_uref: balances_uref.into(),
             allowances_uref: allowances_uref.into(),
             total_supply_uref: total_supply_uref.into(),
-            operators_uref: operators_uref.into()
+            operators_uref: operators_uref.into(),
+            registry_uref: registry_uref.into()
         }
     }
 
@@ -87,6 +86,10 @@ impl ERC20 {
 
     fn balances_uref(&self) -> URef {
         *self.balances_uref.get_or_init(balances::get_balances_uref)
+    }
+
+    fn registry_uref(&self) -> URef {
+        *self.registry_uref.get_or_init(external_contracts::get_registry_uref)
     }
 
     fn read_balance(&self, owner: Address) -> U256 {
@@ -131,19 +134,19 @@ impl ERC20 {
     pub fn install(
         name: String,
         symbol: String,
-        operators_list: Vec<Address>,
         granularity: U256,
         initial_supply: U256,
+        erc1820_hash: ContractHash
     ) -> Result<ERC20, Error> {
         let default_entry_points = entry_points::default();
         ERC20::install_custom(
             name,
             symbol,
-            operators_list,
             granularity,
             initial_supply,
-            ERC20_TOKEN_CONTRACT_KEY_NAME,
+            ERC20_TOKEN_CONTRACT_NAME,
             default_entry_points,
+            erc1820_hash,
         )
     }
 
@@ -237,16 +240,17 @@ impl ERC20 {
     }
 
     /// Allows burning a ´amount´ tokens straight of the caller's tokens.
-    pub fn burn(&mut self, amount: U256, data: Bytes) -> Result<(), Error> {
+    pub fn burn(&mut self, amount: U256, data: String) -> Result<(), Error> {
         let owner: Address = detail::get_immediate_caller_address()?;
 
         let new_total_supply: U256 = balances::burn(
             self.balances_uref(),
+            self.registry_uref(),
             owner,
             amount,
             self.read_total_supply(),
             data,
-            Bytes::new(),
+            String::from(""),
             true
         ).unwrap_or_revert();
 
@@ -266,11 +270,12 @@ impl ERC20 {
 
         let new_total_supply: U256 = balances::burn(
             self.balances_uref(),
+            self.registry_uref(),
             owner,
             amount,
             self.read_total_supply(),
-            Bytes::new(),
-            Bytes::new(),
+            String::from(""),
+            String::from(""),
             true
         ).unwrap_or_revert();
 
@@ -281,16 +286,17 @@ impl ERC20 {
 
     //todo event
     /// Allows sending a ´amount´ tokens to a ´recipient´ of the caller's tokens.
-    pub fn send(&mut self, recipient: Address, amount: U256, data: Bytes) -> Result<(), Error> {
+    pub fn send(&mut self, recipient: Address, amount: U256, data: String) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
         balances::send_balance(
             self.balances_uref(),
+            self.registry_uref(),
             caller,
             recipient,
             amount,
             data,
-            Bytes::new(),
+            String::from(""),
             true
         )
     }
@@ -299,11 +305,10 @@ impl ERC20 {
     pub fn is_operator_for(&mut self, operator: Address, token: Address) -> Result<bool, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
-        let result = operators::check_if_exists(self.operators_uref(), caller, operator);
+        let result = operators::check_if_exists(self.operators_uref(), caller, operator)?;
         Ok(result)
     }
 
-    //todo event
     /// Grant permission to an ´operator´ to send and burn tokens in behalf of the owner.
     pub fn authorize_operator(&mut self, operator: Address) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
@@ -315,7 +320,6 @@ impl ERC20 {
         Ok(())
     }
 
-    //todo event
     /// Delete an ´operator´ for this account
     pub fn revoke_operator(&mut self, operator: Address) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
@@ -345,19 +349,22 @@ impl ERC20 {
         sender: Address,
         recipient: Address,
         amount: U256,
-        data: Bytes,
-        operator_data: Bytes
+        data: String,
+        operator_data: String
     ) -> Result<(), Error> {
-        let caller: Address = detail::get_immediate_caller_address()?;
+        let caller = runtime::get_caller();
+
+        let result = operators::check_if_exists(self.operators_uref(), sender,Address::Account(caller))?;
 
         balances::send_balance(
             self.balances_uref(),
+            self.registry_uref(),
             sender,
             recipient,
             amount,
             data,
             operator_data,
-            operators::check_if_exists(self.operators_uref(), sender,caller)
+            result
         )
     }
 
@@ -366,19 +373,20 @@ impl ERC20 {
         &mut self,
         account: Address,
         amount: U256,
-        data: Bytes,
-        operator_data: Bytes
+        data: String,
+        operator_data: String
     ) -> Result<(), Error>{
-        let caller: Address = detail::get_immediate_caller_address()?;
+        let owner= runtime::get_caller();
 
         let new_total_supply: U256 = balances::burn(
             self.balances_uref(),
+            self.registry_uref(),
             account,
             amount,
             self.read_total_supply(),
             data,
             operator_data,
-            operators::check_if_exists(self.operators_uref(), account,caller)
+            operators::check_if_exists(self.operators_uref(), account,Address::Account(owner)).unwrap_or_default()
         ).unwrap_or_revert();
 
         self.write_total_supply(new_total_supply);
@@ -396,15 +404,16 @@ impl ERC20 {
     pub fn install_custom(
         name: String,
         symbol: String,
-        operators_list: Vec<Address>,
         granularity: U256,
         initial_supply: U256,
         contract_key_name: &str,
         entry_points: EntryPoints,
+        erc1820_hash: ContractHash
     ) -> Result<ERC20, Error> {
         let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
         let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
         let operators_uref = storage::new_dictionary(OPERATORS_KEY_NAME).unwrap_or_revert();
+        let registry_uref = storage::new_dictionary(REGISTRY_CONTRACT_NAME).unwrap_or_revert();
         // We need to hold on a RW access rights because tokens can be minted or burned.
         let total_supply_uref = storage::new_uref(initial_supply).into_read_write();
 
@@ -449,18 +458,20 @@ impl ERC20 {
         };
 
         let operators_dictionary_key = {
-            let caller = detail::get_caller_address()?;
-            for &operator in operators_list.iter() {
-                operators::concat_in_string(
-                    operators_uref,
-                    caller,
-                    operator
+            runtime::remove_key(OPERATORS_KEY_NAME);
+            Key::from(operators_uref)
+        };
+
+        let registry_key = {
+            if ContractHash::default().ne(&erc1820_hash) {
+                external_contracts::set_registry(
+                    registry_uref,
+                    erc1820_hash
                 );
             }
 
-            runtime::remove_key(OPERATORS_KEY_NAME);
-
-            Key::from(operators_uref)
+            runtime::remove_key(REGISTRY_CONTRACT_NAME);
+            Key::from(registry_uref)
         };
 
         named_keys.insert(NAME_KEY_NAME.to_string(), name_key);
@@ -471,6 +482,7 @@ impl ERC20 {
         named_keys.insert(ALLOWANCES_KEY_NAME.to_string(), allowances_dictionary_key);
         named_keys.insert(TOTAL_SUPPLY_KEY_NAME.to_string(), total_supply_key);
         named_keys.insert(OPERATORS_KEY_NAME.to_string(), operators_dictionary_key);
+        named_keys.insert(REGISTRY_CONTRACT_NAME.to_string(), registry_key);
 
         let (contract_hash, _version) =
             storage::new_contract(entry_points, Some(named_keys), None, None);
@@ -478,13 +490,12 @@ impl ERC20 {
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
 
-
-
         Ok(ERC20::new(
             balances_uref,
             allowances_uref,
             total_supply_uref,
-            operators_uref
+            operators_uref,
+            registry_uref
         ))
     }
 }

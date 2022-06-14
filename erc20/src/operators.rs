@@ -7,8 +7,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_contract::contract_api::runtime;
-use casper_types::{bytesrepr::{ToBytes, FromBytes}, URef, account::AccountHash};
-use crate::{constants::OPERATORS_KEY_NAME, detail, Address};
+use casper_types::{bytesrepr::{ToBytes}, URef, account::AccountHash, Key};
+use crate::{constants::OPERATORS_KEY_NAME, detail, Address, Error};
 use crate::Address::Account;
 
 #[inline]
@@ -16,58 +16,19 @@ pub(crate) fn operators_uref() -> URef {
     detail::get_uref(OPERATORS_KEY_NAME)
 }
 
-pub fn find_operators(address: Address) -> Vec<Address> {
-    read_operators(
-        operators_uref(),
-        to_str(address).as_str()
-    )
-}
-
-pub fn read_operators(operators_uref: URef, owner_key: &str) -> Vec<Address> {
-    let values: Vec<Address> = storage::dictionary_get(operators_uref, owner_key)
-        .unwrap_or_revert()
-        .unwrap_or_default();
-
-    values
-}
-
-pub fn write_operators(operators_uref: URef, caller: &str, operator: Address) {
-
-    let operators = read_operators(operators_uref, caller);
-
-
-    storage::dictionary_put(operators_uref, caller, operators);
-}
-
-pub fn remove_operator(operators_uref: URef, operator: Address) {
-    let caller: Address = detail::get_caller_address().unwrap_or_revert();
-    let mut list: Vec<Address> = read_operators(operators_uref, to_str(caller).as_str());
-    let pos = list.iter().position(|i| *i == operator).unwrap();
-    list.remove(pos);
-}
-
-pub fn contains(operators_uref: URef, owner: Address, operator: Address) -> bool {
+pub fn check_if_exists(operators_uref: URef, owner:Address, operator: Address) -> Result<bool, Error> {
     if owner.eq(&operator) {
-        return true;
-    }
-
-    let list: Vec<Address> = read_operators(operators_uref, to_str(owner).as_str());
-
-    list.iter().any(|&i| i.eq(&operator))
-}
-
-pub fn check_if_exists(operators_uref: URef, owner:Address, operator: Address) -> bool {
-    if owner == operator {
-        return true;
+        return Ok(true);
     }
 
     let data: String = storage::dictionary_get(
         operators_uref,
         to_str(owner).as_str()
-    ).unwrap_or_default().unwrap();
+    ).unwrap_or_default().unwrap_or_default();
 
     let addresses_string = decode(data);
-    addresses_string.contains(operator.as_account_hash().unwrap().clone().to_string().as_str())
+    let result = addresses_string.contains(&operator.as_account_hash().unwrap().to_string());
+    Ok(result)
 }
 
 pub fn get_rid_of(operators_uref: URef, owner: Address, operator: Address) {
@@ -99,7 +60,7 @@ pub fn concat_in_string(operators_uref: URef, owner: Address, operator: Address)
         addresses_string = decode(data);
     }
 
-    addresses_string.push_str(operator.as_account_hash().unwrap().clone().to_string().as_str());
+    addresses_string.push_str((*operator.as_account_hash().unwrap()).to_string().as_str());
     addresses_string.push('|');
 
     storage::dictionary_put(operators_uref, to_str(owner).as_str(), encode(addresses_string));
@@ -140,9 +101,5 @@ fn encode(data: String) -> String {
 }
 
 fn decode(data: String) -> String {
-    String::from_vec(base64::decode(data).unwrap()).unwrap_or_default().0
-}
-
-pub(crate) fn to_bytes(address: Address) -> Vec<u8> {
-    address.to_bytes().unwrap_or_revert()
+    String::from_utf8(base64::decode(data).unwrap()).unwrap_or_default()
 }

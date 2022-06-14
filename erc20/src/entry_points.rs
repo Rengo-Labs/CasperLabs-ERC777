@@ -2,11 +2,7 @@
 use alloc::{string::String, vec, vec::Vec};
 use alloc::boxed::Box;
 
-use casper_types::{
-    CLType, CLTyped,
-    EntryPoint, EntryPointAccess, EntryPointType, EntryPoints,
-    Parameter, U256, bytesrepr::Bytes
-};
+use casper_types::{CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256};
 
 use crate::{
     address::Address,
@@ -15,16 +11,14 @@ use crate::{
         APPROVE_ENTRY_POINT_NAME, BALANCE_OF_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
         NAME_ENTRY_POINT_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
         SPENDER_RUNTIME_ARG_NAME, SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME,
-        TRANSFER_ENTRY_POINT_NAME, TRANSFER_FROM_ENTRY_POINT_NAME,
+        TRANSFER_ENTRY_POINT_NAME, TRANSFER_FROM_ENTRY_POINT_NAME, ACCOUNT_RUNTIME_ARG_NAME,
+        AUTHORIZE_OPERATOR_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, DATA_RUNTIME_ARG_NAME,
+        DEFAULT_OPERATORS_ENTRY_POINT_NAME, GRANULARITY_ENTRY_POINT_NAME,
+        IS_OPERATOR_FOR_ENTRY_POINT_NAME, OPERATOR_BURN_ENTRY_POINT_NAME,
+        OPERATOR_DATA_RUNTIME_ARG_NAME, OPERATOR_RUNTIME_ARG_NAME, OPERATOR_SEND_ENTRY_POINT_NAME,
+        REVOKE_OPERATOR_ENTRY_POINT_NAME, SEND_ENTRY_POINT_NAME,
+        SENDER_RUNTIME_ARG_NAME, TOKEN_HOLDER_RUNTIME_ARG_NAME
     },
-};
-use crate::constants::{
-    ACCOUNT_RUNTIME_ARG_NAME, AUTHORIZE_OPERATOR_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME,
-    DATA_RUNTIME_ARG_NAME, DEFAULT_OPERATORS_ENTRY_POINT_NAME, GRANULARITY_ENTRY_POINT_NAME,
-    IS_OPERATOR_FOR_ENTRY_POINT_NAME, OPERATOR_BURN_ENTRY_POINT_NAME,
-    OPERATOR_DATA_RUNTIME_ARG_NAME, OPERATOR_RUNTIME_ARG_NAME, OPERATOR_SEND_ENTRY_POINT_NAME,
-    REVOKE_OPERATOR_ENTRY_POINT_NAME, SEND_ENTRY_POINT_NAME, SENDER_RUNTIME_ARG_NAME,
-    TOKEN_HOLDER_RUNTIME_ARG_NAME
 };
 
 /// Returns the `name` entry point.
@@ -156,7 +150,7 @@ pub fn send() -> EntryPoint {
         vec![
             Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -170,7 +164,7 @@ pub fn burn() -> EntryPoint {
         String::from(BURN_ENTRY_POINT_NAME),
         vec![
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -237,8 +231,8 @@ pub fn operator_send() -> EntryPoint {
             Parameter::new(SENDER_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -253,8 +247,8 @@ pub fn operator_burn() -> EntryPoint {
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,

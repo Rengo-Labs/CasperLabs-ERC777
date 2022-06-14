@@ -11,7 +11,7 @@ pub const DECIMALS_KEY_VALUE: u8 = 18;
 /// Name of dictionary-key for `granularity`
 pub const GRANULARITY_KEY_NAME: &str = "granularity";
 /// Name of named-key for `contract`
-pub const ERC20_TOKEN_CONTRACT_KEY_NAME: &str = "erc20_token_contract";
+pub const ERC20_TOKEN_CONTRACT_NAME: &str = "erc20_token_contract";
 /// Name of dictionary-key for `balances`
 pub const BALANCES_KEY_NAME: &str = "balances";
 /// Name of dictionary-key for `allowances`
@@ -49,6 +49,10 @@ pub const DEFAULT_OPERATORS_ENTRY_POINT_NAME: &str = "default_operators";
 pub const OPERATOR_SEND_ENTRY_POINT_NAME: &str = "operator_send";
 /// Name of `operator_burn` entry point.
 pub const OPERATOR_BURN_ENTRY_POINT_NAME: &str = "operator_burn";
+/// Name of `set_registry` entry point.
+pub const SET_REGISTRY_ENTRY_POINT_NAME: &str = "set_registry";
+/// Name of `set_interface_registry` entry point.
+pub const SET_INTERFACE_REGISTRY_ENTRY_POINT_NAME_2: &str = "set_interface_registry2";
 
 /// Name of `approve` entry point.
 pub const APPROVE_ENTRY_POINT_NAME: &str = "approve";
@@ -95,19 +99,12 @@ pub const TOKEN_HOLDER_RUNTIME_ARG_NAME: &str = "token_holder";
 pub const ACCOUNT_RUNTIME_ARG_NAME: &str = "account";
 
 /// External contracts
-pub const REGISTRY_CONTRACT_NAME: &str = "erc1820_registry";
+pub const REGISTRY_CONTRACT_NAME: &str = "erc1820_global_registry";
 /// External contracts
 pub const ERC777_SENDER_CONTRACT_NAME: &str = "erc777_sender_contract";
 /// External contracts
 pub const ERC777_RECIPIENT_CONTRACT_NAME: &str = "erc777_recipient_contract";
-/// Registry contract's entry points
-pub const REGISTRY_CONTRACT_SET_INTERFACE_ENTRY_POINT: &str = "set_interface_implementer";
-/// Registry contract's entry points
-pub const REGISTRY_CONTRACT_GET_INTERFACE_ENTRY_POINT: &str = "get_interface_implementer";
-/// ERC777 Sender's entry point
-pub const ERC777_CONTRACT_SENDER_INTERFACE_ENTRY_POINT: &str = "tokens_to_send";
-/// ERC777 Recipient's entry point
-pub const ERC777_CONTRACT_RECIPIENT_INTERFACE_ENTRY_POINT: &str = "tokens_received";
+
 /// Name of `from` runtime argument.
 pub const FROM_RUNTIME_ARG_NAME: &str = "from";
 /// Name of `to` runtime argument.
@@ -118,9 +115,24 @@ pub const USER_DATA_RUNTIME_ARG_NAME: &str = "user_data";
 pub const I_HASH_RUNTIME_ARG_NAME: &str = "i_hash";
 /// Name of `implementer` runtime argument.
 pub const IMPLEMENTER_RUNTIME_ARG_NAME: &str = "implementer";
+/// Name of `erc1820_contract` runtime argument.
+pub const HASH_ERC1820_RUNTIME_ARG_NAME: &str = "erc1820_contract";
 
-/// Hash ERC1820
+
+/// Constants used for external calls
+/// Constant to retrieve an implementer to send tokens
 pub const HASH_ERC1820_SENDER: &str = "ERC777TokensSender";
+/// Constant to retrieve an implementer to receive tokens
 pub const HASH_ERC1820_RECIPIENT: &str = "ERC777TokensRecipient";
-//pub const HASH_ERC1820_REGISTRY: &str = "hash-0658278e8e141ed941ea11187c08752f8c995e20b43ed2f222fb5bd91e85bf08";
 
+/// This hash must be configured to use with the actual ERC1820 deployed.
+pub const HASH_ERC1820_REGISTRY: &str = "contract-dbd88acafb7c031f8c9f2aa3a8da7a3a6b74c655921496cdc3bd0d50f61aa997";
+
+/// Registry contract's entry points
+pub const SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT: &str = "set_interface_implementer";
+/// Registry contract's entry points
+pub const GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT: &str = "get_interface_implementer";
+/// ERC777 Sender's entry point
+pub const TOKENS_TO_SEND_OF_EXTERNAL_ENTRY_POINT: &str = "tokens_to_send";
+/// ERC777 Recipient's entry point
+pub const TOKENS_RECEIVED_OF_EXTERNAL_ENTRY_POINT: &str = "tokens_received";

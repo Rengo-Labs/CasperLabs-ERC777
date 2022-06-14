@@ -1,16 +1,13 @@
-use alloc::collections::BTreeMap;
-use alloc::string::String;
+use alloc::string::{String};
 use alloc::vec::Vec;
-use casper_types::bytesrepr::{Bytes, FromBytes, ToBytes};
-use casper_types::{CLType, CLTyped, URef};
+use casper_types::bytesrepr::{ToBytes};
+use casper_types::{Key, URef};
 use casper_types::account::AccountHash;
-use ::{Address, detail};
+use ::{detail};
 use casper_contract::{
     contract_api::{runtime, storage}
 };
-use address::Address::Account;
-use constants::IMPLEMENTERS_REGISTRY_KEY_NAME;
-use detail::get_immediate_caller_address;
+use constants::{IMPLEMENTERS_REGISTRY_KEY_NAME};
 
 #[inline]
 pub(crate) fn implementers_registry() -> URef {
@@ -19,52 +16,35 @@ pub(crate) fn implementers_registry() -> URef {
 
 pub fn create_or_update_implementer(
     implementer_uref: URef,
-    account: Address,
-    interface_hash: Bytes,
-    implementer: Address
+    account: Key,
+    interface_hash: String,
+    implementer: Key
 ) {
     let hash_string: String;
 
-    if AccountHash::default().eq(account.as_account_hash().unwrap()) {
-        let caller = get_immediate_caller_address().unwrap_or(Account(AccountHash::default()));
-        hash_string = to_str(caller);
-    } else {
-        hash_string = to_str(account);
-    }
-
-    let mut implementers: BTreeMap<Bytes, Address> = storage::dictionary_get(
-        implementer_uref,
-        hash_string.as_str()
-    ).unwrap_or_default().unwrap_or_default();
-
-    implementers.insert(interface_hash, implementer);
+    hash_string = to_str(account, interface_hash);
 
     storage::dictionary_put(
         implementer_uref,
         hash_string.as_str(),
-        implementers);
+        implementer);
 }
 
-pub fn get_implementer(implementer_uref: URef, account: Address, interface_hash: Bytes) -> Address {
-    let hash_string = to_str(account);
-    let implements: BTreeMap<Bytes, Address> = storage::dictionary_get(
+pub fn get_implementer(implementer_uref: URef, account: Key, interface_hash: String) -> Key {
+    let hash_string = to_str(account, interface_hash);
+    let implementer = storage::dictionary_get(
         implementer_uref,
         hash_string.as_str()
-    ).unwrap_or_default().unwrap_or_default();
+    ).unwrap().unwrap_or(Key::Account(AccountHash::default()));
 
-    *implements.get(&interface_hash).unwrap()
+    implementer
 }
 
-pub(crate) fn to_str(owner: Address) -> String {
-    let key_bytes = owner.to_bytes().unwrap();
-    let hash = runtime::blake2b(&key_bytes);
+pub(crate) fn to_str(owner: Key, tag: String) -> String {
+    let mut preimage = Vec::new();
+    preimage.append(&mut owner.to_bytes().unwrap());
+    preimage.append(&mut tag.into_bytes());
+
+    let hash = runtime::blake2b(&preimage);
     hex::encode(&hash)
-}
-
-fn encode(data: String) -> String {
-    base64::encode(data)
-}
-
-fn decode(data: String) -> String {
-    String::from_vec(base64::decode(data).unwrap()).unwrap_or_default().0
 }

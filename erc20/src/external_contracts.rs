@@ -1,51 +1,62 @@
-use alloc::string::{String, ToString};
-use alloc::vec::Vec;
-use casper_contract::contract_api::runtime;
-use casper_types::{ContractHash, Key, runtime_args, RuntimeArgs, U256};
-use casper_types::account::AccountHash;
-use casper_types::bytesrepr::{Bytes, ToBytes};
-use crate::{Address, Error};
+use alloc::string::{String};
+use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
+use casper_types::{ContractHash, Key, runtime_args, RuntimeArgs, U256, URef};
+use crate::{Address, detail};
 use crate::constants::{
-    ADDRESS_RUNTIME_ARG_NAME, REGISTRY_CONTRACT_GET_INTERFACE_ENTRY_POINT, REGISTRY_CONTRACT_NAME,
-    REGISTRY_CONTRACT_SET_INTERFACE_ENTRY_POINT, I_HASH_RUNTIME_ARG_NAME, IMPLEMENTER_RUNTIME_ARG_NAME,
-    ERC777_CONTRACT_SENDER_INTERFACE_ENTRY_POINT, OPERATOR_RUNTIME_ARG_NAME, FROM_RUNTIME_ARG_NAME,
-    TO_RUNTIME_ARG_NAME, ERC777_SENDER_CONTRACT_NAME, ERC777_CONTRACT_RECIPIENT_INTERFACE_ENTRY_POINT,
-    ERC777_RECIPIENT_CONTRACT_NAME, USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME,
-    AMOUNT_RUNTIME_ARG_NAME, HASH_ERC1820_SENDER, HASH_ERC1820_RECIPIENT
+    GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT, REGISTRY_CONTRACT_NAME, SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
+    I_HASH_RUNTIME_ARG_NAME, IMPLEMENTER_RUNTIME_ARG_NAME, TOKENS_TO_SEND_OF_EXTERNAL_ENTRY_POINT,
+    OPERATOR_RUNTIME_ARG_NAME, FROM_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME, TOKENS_RECEIVED_OF_EXTERNAL_ENTRY_POINT,
+    USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME,
+    ACCOUNT_RUNTIME_ARG_NAME
 };
 
-pub(crate) fn get_interface(account: Address, i_hash: Bytes) -> Result<Address, Error> {
-
-    let token_contract: Key = runtime::get_key(REGISTRY_CONTRACT_NAME)
-        .unwrap();
-
-    let registry_args = runtime_args! {
-        ADDRESS_RUNTIME_ARG_NAME => account,
-        I_HASH_RUNTIME_ARG_NAME => i_hash
-    };
-    let result = runtime::call_contract::<Address>(
-        ContractHash::new(token_contract.into_hash().unwrap_or_default()),
-        REGISTRY_CONTRACT_GET_INTERFACE_ENTRY_POINT,
-        registry_args,
-    );
-
-    Ok(result)
+#[inline]
+pub(crate) fn get_registry_uref() -> URef {
+    detail::get_uref(REGISTRY_CONTRACT_NAME)
 }
 
-pub(crate) fn set_interface(account: Address, i_hash: Bytes, implementer: Address) {
+pub(crate) fn set_registry(registry_uref: URef, contract_hash: ContractHash) {
+    storage::dictionary_put(registry_uref, REGISTRY_CONTRACT_NAME, contract_hash);
+}
 
-    let token_contract: Key = runtime::get_key(REGISTRY_CONTRACT_NAME)
-        .unwrap();
+pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: String) -> Key {
+
     //let hash_contract = ContractHash::from_formatted_str(HASH_ERC1820_REGISTRY).unwrap();
+    let hash_contract = storage::dictionary_get(
+        registry_uref,
+        REGISTRY_CONTRACT_NAME
+    ).unwrap_or_default().unwrap_or_default();
 
     let registry_args = runtime_args! {
-        ADDRESS_RUNTIME_ARG_NAME => account,
+        ACCOUNT_RUNTIME_ARG_NAME => account,
+        I_HASH_RUNTIME_ARG_NAME => i_hash
+    };
+
+    let result = runtime::call_contract(
+        hash_contract,
+        GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
+        registry_args
+    );
+
+    result
+}
+
+pub(crate) fn set_interface(registry_uref: URef, account: Address, i_hash: String, implementer: Key) {
+
+    //let hash_contract = ContractHash::from_formatted_str(HASH_ERC1820_REGISTRY).unwrap();
+    let hash_contract = storage::dictionary_get(
+        registry_uref,
+        REGISTRY_CONTRACT_NAME
+    ).unwrap_or_default().unwrap_or_default();
+
+    let registry_args = runtime_args! {
+        ACCOUNT_RUNTIME_ARG_NAME => account,
         I_HASH_RUNTIME_ARG_NAME => i_hash,
         IMPLEMENTER_RUNTIME_ARG_NAME => implementer
     };
-    runtime::call_contract::<Address>(
-        ContractHash::new(token_contract.into_hash().unwrap()),
-        REGISTRY_CONTRACT_SET_INTERFACE_ENTRY_POINT,
+    runtime::call_contract::<()>(
+        hash_contract,
+        SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
         registry_args,
     );
 }
@@ -55,12 +66,10 @@ pub(crate) fn tokens_to_send(
     from: Address,
     to: Address,
     amount: U256,
-    user_data: Bytes,
-    operator_data: Bytes
+    user_data: String,
+    operator_data: String,
+    implementer: Key
 ) {
-
-    let token_contract: Key = runtime::get_key(ERC777_SENDER_CONTRACT_NAME)
-        .unwrap();
 
     let args = runtime_args! {
         OPERATOR_RUNTIME_ARG_NAME => operator,
@@ -70,9 +79,9 @@ pub(crate) fn tokens_to_send(
         USER_DATA_RUNTIME_ARG_NAME => user_data,
         OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
     };
-    runtime::call_contract::<Address>(
-        ContractHash::new(token_contract.into_hash().unwrap_or_default()),
-        ERC777_CONTRACT_SENDER_INTERFACE_ENTRY_POINT,
+    runtime::call_contract::<()>(
+        ContractHash::new(implementer.into_hash().unwrap()),
+        TOKENS_TO_SEND_OF_EXTERNAL_ENTRY_POINT,
         args,
     );
 }
@@ -82,12 +91,10 @@ pub(crate) fn tokens_received(
     from: Address,
     to: Address,
     amount: U256,
-    user_data: Bytes,
-    operator_data: Bytes
+    user_data: String,
+    operator_data: String,
+    implementer: Key
 ) {
-
-    let token_contract: Key = runtime::get_key(ERC777_RECIPIENT_CONTRACT_NAME)
-        .unwrap();
 
     let args = runtime_args! {
         OPERATOR_RUNTIME_ARG_NAME => operator,
@@ -97,9 +104,9 @@ pub(crate) fn tokens_received(
         USER_DATA_RUNTIME_ARG_NAME => user_data,
         OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
     };
-    runtime::call_contract::<Address>(
-        ContractHash::new(token_contract.into_hash().unwrap_or_default()),
-        ERC777_CONTRACT_RECIPIENT_INTERFACE_ENTRY_POINT,
+    runtime::call_contract::<()>(
+        ContractHash::new(implementer.into_hash().unwrap()),
+        TOKENS_RECEIVED_OF_EXTERNAL_ENTRY_POINT,
         args,
     );
 }

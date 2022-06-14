@@ -2,13 +2,6 @@
 //!
 //! The main functionality is provided via the [`ERC777Recipient`] struct, and is intended to be consumed by a
 //! smart contract written to be deployed on the Casper network.
-//!
-//! To create an example ERC20 contract which uses this library, use the cargo-casper tool:
-//!
-//! ```bash
-//! cargo install cargo-casper
-//! cargo casper --erc20 <PATH TO NEW PROJECT>
-//! ```
 
 #![warn(missing_docs)]
 #![no_std]
@@ -18,67 +11,109 @@ extern crate casper_types;
 extern crate casper_contract;
 extern crate once_cell;
 
-mod address;
 pub mod constants;
 pub mod entry_points;
 mod error;
+mod balances;
+mod erc1820_registry;
 mod recipient_notifier;
-mod ierc777_recipient;
+mod erc777_registry;
 
-use alloc::string::{ToString};
+use alloc::string::{String, ToString};
 use once_cell::unsync::OnceCell;
 
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{
-    bytesrepr::Bytes, {contracts::NamedKeys, EntryPoints, Key, URef},
-    U256, account::AccountHash
+use casper_types::{{contracts::NamedKeys, EntryPoints, Key, URef}, U256, ContractHash};
+use constants::{
+    ERC777_RECIPIENT_CONTRACT_NAME, BALANCES_REGISTRY_KEY_NAME,
+    HASH_ERC1820_RECIPIENT, ERC777_REGISTRY_KEY_NAME
 };
-
-use constants::{ERC777_RECIPIENT_CONTRACT_NAME, BALANCES_REGISTRY};
 use error::Error;
 
 /// Struct
 #[derive(Default)]
 pub struct ERC777Recipient {
-    registry_uref: OnceCell<URef>
+    balance_uref: OnceCell<URef>,
+    erc777_uref: OnceCell<URef>
 }
 
 impl ERC777Recipient {
-    fn new(registry_uref: URef) -> Self {
+    fn new(balance_uref: URef, erc777_uref: URef) -> Self {
         Self {
-            registry_uref: registry_uref.into()
+            balance_uref: balance_uref.into(),
+            erc777_uref: erc777_uref.into()
         }
     }
 
-    /// Installs the ERC777Recipient contract with the default set of entry points.
-    ///
-    /// This should be called from within `fn call()` of your contract.
-    pub fn install(
-        account: AccountHash
-    ) -> Result<ERC777Recipient, Error> {
-        let default_entry_points = entry_points::default();
-        ERC777Recipient::install_custom(
-            account,
-            ERC777_RECIPIENT_CONTRACT_NAME,
-            default_entry_points,
-        )
+    pub fn erc777_uref(&self) -> URef {
+        *self.erc777_uref.get_or_init(erc777_registry::get_erc777_uref)
     }
 
     /// The movements or creations are performed in a registered account `to`.
     /// The type operation is conveyed by `from` being the zero address or not.
     pub fn tokens_received(
-        operator: AccountHash,
-        from: AccountHash,
-        to: AccountHash,
+        &self,
+        operator: Key,
+        from: Key,
+        to: Key,
         amount: U256,
-        data: Bytes,
-        operator_data: Bytes
+        data: String,
+        operator_data: String
     ) -> Result<(), Error> {
-        recipient_notifier::tokens_received(operator, from, to, amount, data, operator_data);
+        //register or revert
         Ok(())
+    }
+
+    pub fn balance_of(&self, owner: Key) -> Result<U256, Error> {
+        erc777_registry::balance_of(self.erc777_uref(), owner)
+    }
+
+    /// it transfers tokens from erc777's operator_send
+    pub fn transfer(
+        self,
+        from: Key,
+        to: Key,
+        amount: U256,
+        user_data: String,
+        operator_data: String
+    ) -> Result<(), Error>{
+        erc777_registry::transfer(self.erc777_uref() , from, to, amount, user_data, operator_data);
+
+        Ok(())
+    }
+
+    /// Allows burning a ´amount´ tokens on behalf of the tokens' owner.
+    pub fn burn(
+        self,
+        account: Key,
+        amount: U256,
+        user_data: String,
+        operator_data: String
+    ) -> Result<(), Error>{
+        erc777_registry::burn(
+            self.erc777_uref(),
+            account,
+            amount,
+            user_data,
+            operator_data
+        );
+        Ok(())
+    }
+
+    /// Installs the ERC777Recipient contract with the default set of entry points.
+    ///
+    /// This should be called from within `fn call()` of your contract.
+    pub fn install(erc1820_hash: ContractHash, erc777_hash: ContractHash) -> Result<ERC777Recipient, Error> {
+        let default_entry_points = entry_points::default();
+        ERC777Recipient::install_custom(
+            erc1820_hash,
+            erc777_hash,
+            ERC777_RECIPIENT_CONTRACT_NAME,
+            default_entry_points,
+        )
     }
 
     /// Installs the ERC777 Recipient contract with a custom set of entry points.
@@ -90,26 +125,48 @@ impl ERC777Recipient {
     /// lead to problems with integrators such as wallets, and exchanges.
     #[doc(hidden)]
     pub fn install_custom(
-        account: AccountHash,
+        erc1820_hash: ContractHash,
+        erc777_hash: ContractHash,
         contract_key_name: &str,
         entry_points: EntryPoints,
     ) -> Result<ERC777Recipient, Error> {
-        let registry_uref = storage::new_dictionary(BALANCES_REGISTRY).unwrap_or_revert();
+        let balance_uref = storage::new_dictionary(BALANCES_REGISTRY_KEY_NAME).unwrap_or_revert();
+        let erc777_uref = storage::new_dictionary(ERC777_REGISTRY_KEY_NAME).unwrap_or_revert();
 
         let mut named_keys = NamedKeys::new();
 
-        let movement_key = Key::from(registry_uref);
+        let movement_key = {
+            runtime::remove_key(BALANCES_REGISTRY_KEY_NAME);
+            Key::from(balance_uref)
+        };
 
-        named_keys.insert(BALANCES_REGISTRY.to_string(), movement_key);
+        let erc777_key = {
+            erc777_registry::save_erc777_contract(erc777_uref, erc777_hash);
+            runtime::remove_key(ERC777_REGISTRY_KEY_NAME);
+            Key::from(erc777_uref)
+        };
+
+        named_keys.insert(BALANCES_REGISTRY_KEY_NAME.to_string(), movement_key);
+        named_keys.insert(ERC777_REGISTRY_KEY_NAME.to_string(), erc777_key);
 
         let (contract_hash, _version) =
-            storage::new_locked_contract(entry_points, Some(named_keys), None, None);
+            storage::new_contract(entry_points, Some(named_keys), None, None);
 
         // Hash of the installed contract will be reachable through named keys.
-        runtime::put_key(contract_key_name, Key::from(contract_hash));
+        let contract_key = Key::from(contract_hash);
+        runtime::put_key(contract_key_name, contract_key);
+
+        let account_hash = runtime::get_caller();
+        erc1820_registry::set_implementer(
+            Key::from(account_hash),
+            HASH_ERC1820_RECIPIENT.to_string(),
+            contract_key,
+            erc1820_hash
+        );
 
         Ok(ERC777Recipient::new(
-            registry_uref
+            balance_uref,
+            erc777_uref
         ))
     }
 }

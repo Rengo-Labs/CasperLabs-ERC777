@@ -1,0 +1,16 @@
+[package]
+name = "erc777-sender-contract"
+version = "0.0.1"
+edition = "2018"
+
+[dependencies]
+casper-contract = "1.3.2"
+casper-erc777-sender = { path = "../../../erc777-sender" }
+casper-types = "1.3.2"
+
+[[bin]]
+name = "erc777_sender"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false

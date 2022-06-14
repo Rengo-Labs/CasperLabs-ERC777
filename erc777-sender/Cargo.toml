@@ -1,6 +1,6 @@
 [package]
 name = "casper-erc777-sender"
-version = "0.0.1"
+version = "0.1.0"
 description = "A library for using ERC777Sender"
 readme = "README.md"
 

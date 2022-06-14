@@ -1,24 +1,33 @@
 [workspace]
 members = [
     "erc20",
-    "testing/erc20-test",
-    "testing/erc20-test-call",
-    "example/erc20-token",
-    "example/erc20-tests",
-    "example/erc777-tests",
     "erc1820",
-    "example/erc1820-registry",
-    "example/erc1820-registry-tests"
+    "erc777-recipient",
+    "erc777-sender",
+    "example/tests/erc1820-tests",
+    "example/tests/erc20-tests",
+    "example/tests/erc777-tests",
+    "example/tests/erc777-recipient-tests",
+    "example/tests/erc777-sender-tests",
+    "example/implementations/erc1820-registry",
+    "example/implementations/erc20-token",
+    "example/implementations/erc777-recipient-contract",
+    "example/implementations/erc777-sender-contract"
 ]
 default-members = [
     "erc20",
-    "testing/erc20-test",
-    "testing/erc20-test-call",
-    "example/erc20-tests",
-    "example/erc777-tests",
     "erc1820",
-    "example/erc1820-registry",
-    "example/erc1820-registry-tests"
+    "erc777-recipient",
+    "erc777-sender",
+    "example/tests/erc1820-tests",
+    "example/tests/erc20-tests",
+    "example/tests/erc777-tests",
+    "example/tests/erc777-recipient-tests",
+    "example/tests/erc777-sender-tests",
+    "example/implementations/erc1820-registry",
+    "example/implementations/erc20-token",
+    "example/implementations/erc777-recipient-contract",
+    "example/implementations/erc777-sender-contract"
 ]
 
 [profile.release]

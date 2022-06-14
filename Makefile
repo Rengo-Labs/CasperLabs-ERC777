@@ -1,4 +1,4 @@
-ALL_CONTRACTS = erc20-token erc20-test erc20-test-call erc1820-registry
+ALL_CONTRACTS = erc20-token erc1820-registry erc777-recipient-contract erc777-sender-contract
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:
