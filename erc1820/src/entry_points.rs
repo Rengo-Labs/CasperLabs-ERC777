@@ -46,7 +46,7 @@ pub fn get_interface_implementer() -> EntryPoint {
         String::from(GET_INTERFACE_ENTRY_POINT),
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type())
+            Parameter::new(I_HASH_RUNTIME_ARG_NAME, String::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,
@@ -60,7 +60,7 @@ pub fn set_interface_implementer() -> EntryPoint {
         String::from(SET_INTERFACE_ENTRY_POINT),
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(I_HASH_RUNTIME_ARG_NAME, String::cl_type()),
             Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Address::cl_type())
         ],
         Address::cl_type(),

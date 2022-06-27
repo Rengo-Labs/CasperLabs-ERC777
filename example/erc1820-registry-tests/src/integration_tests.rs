@@ -16,18 +16,26 @@ mod tests {
     fn should_install_and_set_i_impl() {
         let mut fixture = TestERC1820::install_contract();
         let ali = fixture.ali;
-        let tag_sender = Bytes::from(HASH_ERC1820_SENDER.to_bytes().unwrap());
+        let implementer = fixture.bob;
+        let tag_sender = HASH_ERC1820_SENDER.to_string();
 
         fixture.set_interface_implementer(
             Key::from(ali),
             tag_sender.clone(),
-            Key::from(ali),
+            Key::from(implementer),
             Sender(ali)
         );
 
-        let implementer = fixture.get_interface_implementer(Key::from(ali));
+        //TODO Get BTreeMap
+        let implementer_map = fixture.get_interface_implementer(Key::from(ali)).unwrap();
 
+        let value = implementer_map.get_key_value(tag_sender.as_str()).unwrap();
+        println!("{}", value.0);
 
+        assert_eq!(
+            Key::from(implementer),
+            *value.1
+        );
     }
 
     #[test]

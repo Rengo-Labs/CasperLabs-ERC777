@@ -20,19 +20,12 @@ pub(crate) fn implementers_registry() -> URef {
 pub fn create_or_update_implementer(
     implementer_uref: URef,
     account: Address,
-    interface_hash: Bytes,
+    interface_hash: String,
     implementer: Address
 ) {
-    let hash_string: String;
+    let hash_string: String = to_str(account);
 
-    if AccountHash::default().eq(account.as_account_hash().unwrap()) {
-        let caller = get_immediate_caller_address().unwrap_or(Account(AccountHash::default()));
-        hash_string = to_str(caller);
-    } else {
-        hash_string = to_str(account);
-    }
-
-    let mut implementers: BTreeMap<Bytes, Address> = storage::dictionary_get(
+    let mut implementers: BTreeMap<String, Address> = storage::dictionary_get(
         implementer_uref,
         hash_string.as_str()
     ).unwrap_or_default().unwrap_or_default();
@@ -45,9 +38,9 @@ pub fn create_or_update_implementer(
         implementers);
 }
 
-pub fn get_implementer(implementer_uref: URef, account: Address, interface_hash: Bytes) -> Address {
+pub fn get_implementer(implementer_uref: URef, account: Address, interface_hash: String) -> Address {
     let hash_string = to_str(account);
-    let implements: BTreeMap<Bytes, Address> = storage::dictionary_get(
+    let implements: BTreeMap<String, Address> = storage::dictionary_get(
         implementer_uref,
         hash_string.as_str()
     ).unwrap_or_default().unwrap_or_default();
@@ -56,9 +49,7 @@ pub fn get_implementer(implementer_uref: URef, account: Address, interface_hash:
 }
 
 pub(crate) fn to_str(owner: Address) -> String {
-    let key_bytes = owner.to_bytes().unwrap();
-    let hash = runtime::blake2b(&key_bytes);
-    hex::encode(&hash)
+    base64::encode(&owner.to_bytes().unwrap())
 }
 
 fn encode(data: String) -> String {

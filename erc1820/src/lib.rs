@@ -87,7 +87,7 @@ impl ERC1820 {
     pub fn set_interface_implementer(
         &self,
         account: Address,
-        i_hash: Bytes,
+        i_hash: String,
         implementer: Address
     ) -> Result<(), Error> {
         implementers_registry::create_or_update_implementer(
@@ -100,7 +100,7 @@ impl ERC1820 {
     }
 
     /// Returns the symbol of the token.
-    pub fn get_interface_implementer(&self, account: Address, i_hash: Bytes) -> Result<Address, Error> {
+    pub fn get_interface_implementer(&self, account: Address, i_hash: String) -> Result<Address, Error> {
         let result = implementers_registry::get_implementer(
             self.implementer_registry_uref(),
             account,

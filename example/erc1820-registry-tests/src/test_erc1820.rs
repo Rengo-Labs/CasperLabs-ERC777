@@ -1,15 +1,12 @@
 use std::collections::BTreeMap;
+use std::collections::hash_set::Union;
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
 };
 use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextBuilder};
 use casper_erc1820::{Address, constants as consts};
-use casper_types::{
-    account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes},
-    runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U512,
-};
+use casper_types::{account::AccountHash, bytesrepr::{FromBytes, ToBytes}, runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U512, CLType};
 use casper_types::bytesrepr::Bytes;
 
 const CONTRACT_ERC1820_REGISTRY: &str = "erc1820_registry.wasm";
@@ -82,7 +79,7 @@ impl TestERC1820 {
         self.context.run(session);
     }
 
-    pub fn set_interface_implementer(&mut self, account: Key, i_hash: Bytes, implementer: Key, sender: Sender) {
+    pub fn set_interface_implementer(&mut self, account: Key, i_hash: String, implementer: Key, sender: Sender) {
         self.call(
             sender,
             consts::SET_INTERFACE_ENTRY_POINT,
@@ -105,7 +102,7 @@ impl TestERC1820 {
         );
     }
 
-    pub fn get_interface_implementer(&self, account: Key) -> Option<BTreeMap<Bytes, AccountHash>> {
+    pub fn get_interface_implementer(&self, account: Key) -> Option<BTreeMap<String, Key>> {
         let item_key = base64::encode(&account.to_bytes().unwrap());
 
         let key = Key::Hash(self.contract_hash().value());
@@ -117,7 +114,7 @@ impl TestERC1820 {
                 item_key
             ).ok()?;
 
-        Some(value.into_t::<BTreeMap<Bytes, AccountHash>>().unwrap())
+        Some(value.into_t::<BTreeMap<String, Key>>().unwrap())
     }
 
     pub fn get_manager(&self, account: Key) -> Option<Key> {

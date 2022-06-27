@@ -24,7 +24,7 @@ use casper_types::bytesrepr::Bytes;
 #[no_mangle]
 pub extern "C" fn set_interface_implementer() {
     let account: Address = runtime::get_named_arg(ACCOUNT_RUNTIME_ARG_NAME);
-    let interface_hash: Bytes = runtime::get_named_arg(I_HASH_RUNTIME_ARG_NAME);
+    let interface_hash: String = runtime::get_named_arg(I_HASH_RUNTIME_ARG_NAME);
     let implementer: Address = runtime::get_named_arg(IMPLEMENTER_RUNTIME_ARG_NAME);
 
     ERC1820::default().set_interface_implementer(
@@ -37,7 +37,7 @@ pub extern "C" fn set_interface_implementer() {
 #[no_mangle]
 pub extern "C" fn get_interface_implementer() {
     let account: Address = runtime::get_named_arg(ACCOUNT_RUNTIME_ARG_NAME);
-    let interface_hash: Bytes = runtime::get_named_arg(I_HASH_RUNTIME_ARG_NAME);
+    let interface_hash: String = runtime::get_named_arg(I_HASH_RUNTIME_ARG_NAME);
 
     let implementer = ERC1820::default().get_interface_implementer(
         account,
