@@ -44,7 +44,7 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library and an [example implementation]((https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs)) of the ERC-20 token for the Casper Network. This section explains the example contract in more detail.
+In [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777), you will find a library and an [example implementation](example/implementations/erc777-token/src/main.rs) of the ERC-20 token for the Casper Network. This section explains the example contract in more detail.
 
 **Note**: To successfully execute the contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile it. To execute the contract you need to deploy the .wasm file on the network.
 
@@ -67,7 +67,7 @@ Here is the code snippet which imports those crates:
 
 
 ## Initializing the Contract {#initializing-the-contract}
-Initializing the contract happens through the `call()` function inside the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`, which require to start the token supply.
+Initializing the contract happens through the `call()` function inside the [contract file](example/implementations/erc777-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`, which require to start the token supply.
 
 The code snippet for initializing the contract should look like this:
 
@@ -77,7 +77,7 @@ The code snippet for initializing the contract should look like this:
 
 This section briefly explains the contract methods used in our ERC-20 contract.
 
-To see the full implementation of the below contract methods, refer to the [contract file](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) library and the [EIP-20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md#) standard.
+To see the full implementation of the below contract methods, refer to the [contract file](example/implementations/erc777-token/src/main.rs) in Github. If you have any questions, review the [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) library and the [EIP-777](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-777.md) standard.
 
 Also, for further unresolved issues please contact the casper development team via the Discord channel.
 
@@ -124,8 +124,8 @@ Here are the basic steps to deploy the ERC-777 contract on the Casper Network.
 
 <img src="./images/erc20-deploy-flow.png" alt="erc20-deploy-flow" title="erc20-deploy-flow">
 
-## Cloning the ERC-777 Contract {#cloning-the-erc-20-contract}
-This step includes cloning and preparing the ERC-20 contract for the deployment.
+## Cloning the ERC-777 Contract {#cloning-the-erc-777-contract}
+This step includes cloning and preparing the ERC-777 contract for the deployment.
 1. Clone the ERC-777 contract from the repository
 ```bash
 git clone https://github.com/casper-ecosystem/erc20.git
@@ -219,7 +219,7 @@ casper-client get-deploy \
 ```
 
 ## Querying with Arguments {#querying-with-arguments}
-This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [erc20 contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) to derive arguments.
+This step will narrow down the context and check the status of a specific entry point. You will use the details inside the [erc20 contract](example/implementations/erc777-token/src/main.rs) to derive arguments.
 
 Use the command template below to query the network state with arguments:
 
@@ -238,7 +238,7 @@ The following steps will guide you through the process with actual values and re
 ### Cloning the ERC-777 Contract
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20.git
+git clone https://github.com/Rengo-Labs/CasperLabs-ERC777.git
 ```
 ### Getting an IP Address from a Testnet Peer
 

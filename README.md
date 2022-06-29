@@ -31,7 +31,7 @@ make test
 
 ## JavaScript Client SDK
 
-A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the ERC-20 contract. 
+A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the ERC-777 contract. 
 
 
 ## Documentation

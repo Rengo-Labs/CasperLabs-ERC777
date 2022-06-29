@@ -37,7 +37,7 @@ To start to develop with this library, you need to follow these steps to avoid e
 make prepare
 ```
 
-- Second, to build the example ERC-20 contract, import libs and supporting test contracts:
+- Second, to build the example ERC-777 contract, import libs and supporting test contracts:
 
 ```
 make build-contracts

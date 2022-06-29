@@ -8,6 +8,8 @@ On this way, it offers a safe way to perform operations on the Casper Network.
 This contract contains an interface registry for managers and implementers.
 What's more, each account can implement more than a single interface.
 
+This library is based on [EIP-1820](https://eips.ethereum.org/EIPS/eip-1820)
+
 ### Entry points
 
 The actual entry points are:

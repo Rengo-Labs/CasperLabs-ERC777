@@ -2,7 +2,7 @@
 
 The testing framework in this tutorial uses the [Casper engine test support](https://crates.io/crates/casper-engine-test-support) crate for testing the contract implementation against the Casper execution environment.
 
-We will review the following three [GitHub testing folders](example/tests/erc20-tests/src/integration_tests.rs), which create a testing framework for the Casper [ERC-777](https://github.com/casper-ecosystem/erc20) project:
+We will review the following three [GitHub testing folders](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src/integration_tests.rs), which create a testing framework for the Casper [ERC-777](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/erc777) project:
 
 -   **erc1820-tests** - Links the test framework together and is required by the Rust toolchain
 -   **erc20-tests** - Sets up the testing context and creates helper functions used by unit tests
@@ -26,7 +26,7 @@ The following is an example of a complete test:
     }
 ```
 
-To run the tests, issue the following command in the project folder, [erc777](https://github.com/casper-ecosystem/erc20):
+To run the tests, issue the following command in the project folder, [erc777](https://github.com/Rengo-Labs/CasperLabs-ERC777/erc777):
 
 ```bash
 
@@ -34,11 +34,11 @@ To run the tests, issue the following command in the project folder, [erc777](ht
 
 ```
 
-The project contains a [Makefile](https://github.com/casper-ecosystem/erc20/blob/master/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/erc20/tree/master/testing/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
+The project contains a [Makefile](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/Makefile), which is a custom build script that compiles the contract before running tests in _release_ mode. Then, the script copies the `contract.wasm` file to the [tests/wasm](https://github.com/casper-ecosystem/erc20/tree/master/testing/tests/wasm) directory. In practice, you only need to run the `make test` command during development.
 
 ## Configuring the Test Package {#configuring-the-test-package}
 
-In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/Cargo.toml) file.
+In this project, we define a `tests` package using the [tests/Cargo.toml](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/Cargo.toml) file.
 
 ```bash
 
@@ -60,19 +60,19 @@ In this project, we define a `tests` package using the [tests/Cargo.toml](https:
 
 ## Testing Logic {#testing-logic}
 
-In Github, you will find an [example](https://github.com/casper-ecosystem/erc20/tree/master/example) containing a Casper ERC-777 [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) implementation with the corresponding [tests](https://github.com/casper-ecosystem/erc20/tree/master/example/erc20-tests/src). The tests follow this sequence:
+In Github, you will find an [example](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example) containing a Casper ERC-777 [contract](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/implementations/erc777-token/src/main.rs) implementation with the corresponding [tests](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src). The tests follow this sequence:
 
 -   [Step 1](#setting-up-the-testing-context) - Specify the starting state of the blockchain.
 -   [Step 2](#deploying-the-contract) - Deploy the compiled contract to the blockchain and query it.
 -   [Step 3](#invoking-contract-methods) - Create additional deploys for each of the methods in the contract.
 
-The [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) accomplishes these steps by simulating a real-world deployment (storing the contract in the blockchain) and invoking methods in the contract.
+The [TestFixture](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src/test_fixture.rs) accomplishes these steps by simulating a real-world deployment (storing the contract in the blockchain) and invoking methods in the contract.
 
 ### Setting up the testing context {#setting-up-the-testing-context}
 
-The code in the [TestFixture](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) initializes the blockchain's [global state](https://casper.network/docs/glossary/G/#global-state) with all the data and methods a smart contract needs.
+The code in the [TestFixture](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src/test_fixture.rs) initializes the blockchain's [global state](https://casper.network/docs/glossary/G/#global-state) with all the data and methods a smart contract needs.
 
-Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/casper-ecosystem/erc20).
+Below is a subset of the required constants for this project. For the most up-to-date version of the code, visit [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777).
 
 ```rust
 
@@ -114,7 +114,7 @@ These accounts have a positive initial balance.
 When the contract is deployed, it receives a default **contract_hash**
 
 
-The full and most recent code implementation is available on [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs).
+The full and most recent code implementation is available on [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src/test_fixture.rs).
 
 ```rust
 
@@ -260,7 +260,7 @@ The following code snippet describes a generic way to call a specific entry poin
     }
 ```
 
-The next code sample shows how to invoke one of the methods in the contract. The rest of the methods are available on [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs).
+The next code sample shows how to invoke one of the methods in the contract. The rest of the methods are available on [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/example/tests/erc777-tests/src/test_fixture.rs).
 
 ```rust
 
@@ -279,7 +279,7 @@ The next code sample shows how to invoke one of the methods in the contract. The
 
 ## Creating Unit Tests {#creating-unit-tests}
 
-Now that we have a testing context, we can use it to create unit tests in a file called [integration_tests.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/test_fixture.rs) file.
+Now that we have a testing context, we can use it to create unit tests in a file called [integration_tests.rs](example/tests/erc777-tests/src/integration_tests.rs). The unit tests verify the contract code by invoking the functions defined in the [test_fixture.rs](example/tests/erc777-tests/src/test_fixture.rs) file.
 
 The example below shows one of the example tests. Visit [GitHub](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-tests/src/integration_tests.rs) to find all the available tests.
 
@@ -304,15 +304,7 @@ The example below shows one of the example tests. Visit [GitHub](https://github.
 
 ## Running the Tests {#running-the-tests}
 
-We have configured the [lib.rs](https://github.com/casper-ecosystem/erc20/blob/master/testing/tests/src/lib.rs) file to run the example integration tests via the `make test` command:
-
-```rust
-
-    #[cfg(test)]
-    mod lib_integration_tests;
-```
-
-To run the tests, navigate to the parent [erc777 directory](https://github.com/casper-ecosystem/erc20) and run the command:
+To run the tests, navigate to the parent [erc777 directory](https://github.com/Rengo-Labs/CasperLabs-ERC777) and run the command:
 
 ```bash
 
