@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "erc20",
+    "erc777",
     "erc1820",
     "erc777-recipient",
     "erc777-sender",
@@ -10,12 +10,12 @@ members = [
     "example/tests/erc777-recipient-tests",
     "example/tests/erc777-sender-tests",
     "example/implementations/erc1820-registry",
-    "example/implementations/erc20-token",
+    "example/implementations/erc777-token",
     "example/implementations/erc777-recipient-contract",
     "example/implementations/erc777-sender-contract"
 ]
 default-members = [
-    "erc20",
+    "erc777",
     "erc1820",
     "erc777-recipient",
     "erc777-sender",
@@ -25,7 +25,7 @@ default-members = [
     "example/tests/erc777-recipient-tests",
     "example/tests/erc777-sender-tests",
     "example/implementations/erc1820-registry",
-    "example/implementations/erc20-token",
+    "example/implementations/erc777-token",
     "example/implementations/erc777-recipient-contract",
     "example/implementations/erc777-sender-contract"
 ]

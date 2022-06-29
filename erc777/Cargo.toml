@@ -1,5 +1,5 @@
 [package]
-name = "casper-erc20"
+name = "casper-erc777"
 version = "0.2.1"
 edition = "2018"
 authors = ["Michał Papierski <michal@casperlabs.io>"]

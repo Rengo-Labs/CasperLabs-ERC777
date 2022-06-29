@@ -86,8 +86,8 @@ Below is a subset of the required constants for this project. For the most up-to
         runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U256, U512,
     };
 
-    const CONTRACT_ERC20_TOKEN: &str = "erc20_token.wasm";
-    const CONTRACT_KEY_NAME: &str = "erc20_token_contract";
+    const CONTRACT_ERC20_TOKEN: &str = "erc777_token.wasm";
+    const CONTRACT_KEY_NAME: &str = "erc777_token_contract";
 
     fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {...}
 

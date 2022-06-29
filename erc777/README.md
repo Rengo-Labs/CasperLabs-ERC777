@@ -86,7 +86,7 @@ let hash_contract = storage::dictionary_get(
     ).unwrap_or_default().unwrap_or_default();
 ```
 Second, you must delete the received Parameter **erc_1820_hash** from **call** 
-function from [**erc20-token/erc/main.rs**](/example/implementations/erc20-token/src/main.rs)
+function from [**erc20-token/erc/main.rs**](/example/implementations/erc777-token/src/main.rs)
 
 ```
 #[no_mangle]

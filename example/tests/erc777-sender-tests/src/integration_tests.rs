@@ -6,7 +6,6 @@ mod test_fixture;
 #[cfg(test)]
 mod tests {
     use casper_types::{Key, U256};
-    use casper_erc20::Address;
 
     extern crate base64;
     use crate::test_fixture::{Sender, TestFixture};

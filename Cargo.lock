@@ -135,7 +135,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "casper-erc20"
+name = "casper-erc777"
 version = "0.2.1"
 dependencies = [
  "base64",
@@ -470,18 +470,9 @@ dependencies = [
  "blake2",
  "casper-contract",
  "casper-engine-test-support",
- "casper-erc20",
+ "casper-erc777",
  "casper-types",
  "hex",
-]
-
-[[package]]
-name = "erc20-token"
-version = "0.0.1"
-dependencies = [
- "casper-contract",
- "casper-erc20",
- "casper-types",
 ]
 
 [[package]]
@@ -502,7 +493,7 @@ dependencies = [
  "casper-contract",
  "casper-engine-test-support",
  "casper-erc1820",
- "casper-erc20",
+ "casper-erc777",
  "casper-erc777-recipient",
  "casper-types",
  "hex",
@@ -527,7 +518,7 @@ dependencies = [
  "casper-contract",
  "casper-engine-test-support",
  "casper-erc1820",
- "casper-erc20",
+ "casper-erc777",
  "casper-erc777-sender",
  "casper-types",
  "hex",
@@ -543,10 +534,19 @@ dependencies = [
  "casper-contract",
  "casper-engine-test-support",
  "casper-erc1820",
- "casper-erc20",
+ "casper-erc777",
  "casper-types",
  "hex",
  "once_cell",
+]
+
+[[package]]
+name = "erc777-token"
+version = "0.0.1"
+dependencies = [
+ "casper-contract",
+ "casper-erc777",
+ "casper-types",
 ]
 
 [[package]]

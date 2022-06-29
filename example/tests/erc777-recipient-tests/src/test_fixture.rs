@@ -4,15 +4,15 @@ use blake2::{
 };
 use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextBuilder};
 use casper_types::{
-    account::AccountHash, bytesrepr::{Bytes, FromBytes, ToBytes},
+    account::AccountHash, bytesrepr::{FromBytes, ToBytes},
     runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U512, U256, HashAddr
 };
 
 const ERC1820_CONTRACT_WASM: &str = "erc1820_registry.wasm";
-const ERC777_CONTRACT_WASM: &str = "erc20_token.wasm";
+const ERC777_CONTRACT_WASM: &str = "erc777_token.wasm";
 const ERC777_RECIPIENT_CONTRACT_WASM: &str = "erc777_recipient.wasm";
 const ERC1820_CONTRACT_NAME: &str = "erc1820_registry";
-const ERC20_CONTRACT_NAME: &str = "erc20_token_contract";
+const ERC20_CONTRACT_NAME: &str = "erc777_token_contract";
 const ERC777_RECIPIENT_CONTRACT_NAME: &str = "erc777_recipient_contract";
 
 
@@ -33,7 +33,7 @@ pub struct TestFixture {
 }
 
 impl TestFixture {
-    pub const TOKEN_NAME: &'static str = "Test ERC20";
+    pub const TOKEN_NAME: &'static str = "Test ERC777";
     pub const TOKEN_SYMBOL: &'static str = "TERC";
     const TOKEN_TOTAL_SUPPLY_AS_U64: u64 = 10000;
 
@@ -76,11 +76,11 @@ impl TestFixture {
         let contract_hash = self.contract_hash_erc1820();
         let session_code = Code::from(ERC777_CONTRACT_WASM);
         let session_args = runtime_args! {
-            casper_erc20::constants::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
-            casper_erc20::constants::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
-            casper_erc20::constants::GRANULARITY_RUNTIME_ARG_NAME => U256::one(),
-            casper_erc20::constants::TOTAL_SUPPLY_RUNTIME_ARG_NAME => TestFixture::token_total_supply(),
-            casper_erc20::constants::HASH_ERC1820_RUNTIME_ARG_NAME => contract_hash
+            casper_erc777::constants::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
+            casper_erc777::constants::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
+            casper_erc777::constants::GRANULARITY_RUNTIME_ARG_NAME => U256::one(),
+            casper_erc777::constants::TOTAL_SUPPLY_RUNTIME_ARG_NAME => TestFixture::token_total_supply(),
+            casper_erc777::constants::HASH_ERC1820_RUNTIME_ARG_NAME => contract_hash
         };
 
         let session = SessionBuilder::new(session_code, session_args)
@@ -180,21 +180,21 @@ impl TestFixture {
     }
 
     pub fn token_name(&self) -> String {
-        self.query_contract_erc20(casper_erc20::constants::NAME_RUNTIME_ARG_NAME).unwrap()
+        self.query_contract_erc20(casper_erc777::constants::NAME_RUNTIME_ARG_NAME).unwrap()
     }
 
     pub fn token_symbol(&self) -> String {
-        self.query_contract_erc20(casper_erc20::constants::SYMBOL_RUNTIME_ARG_NAME)
+        self.query_contract_erc20(casper_erc777::constants::SYMBOL_RUNTIME_ARG_NAME)
             .unwrap()
     }
 
     pub fn token_granularity(&self) -> U256 {
-        self.query_contract_erc20(casper_erc20::constants::GRANULARITY_RUNTIME_ARG_NAME)
+        self.query_contract_erc20(casper_erc777::constants::GRANULARITY_RUNTIME_ARG_NAME)
             .unwrap()
     }
 
     pub fn token_erc1820(&self) -> Key {
-        self.query_contract_erc20(casper_erc20::constants::REGISTRY_CONTRACT_NAME).unwrap()
+        self.query_contract_erc20(casper_erc777::constants::REGISTRY_CONTRACT_NAME).unwrap()
     }
 
     pub fn balance_of(&self, account: Key) -> Option<U256> {
@@ -203,7 +203,7 @@ impl TestFixture {
         let key = Key::Hash(self.contract_hash_erc20().value());
         let value = self
             .context
-            .query_dictionary_item(key, Some(casper_erc20::constants::BALANCES_KEY_NAME.to_string()), item_key)
+            .query_dictionary_item(key, Some(casper_erc777::constants::BALANCES_KEY_NAME.to_string()), item_key)
             .ok()?;
 
         Some(value.into_t::<U256>().unwrap())
@@ -219,7 +219,7 @@ impl TestFixture {
             .context
             .query_dictionary_item(
                 key,
-                Some(casper_erc20::constants::OPERATORS_KEY_NAME.to_string()),
+                Some(casper_erc777::constants::OPERATORS_KEY_NAME.to_string()),
                 operators_item_key,
             ).ok()?;
         Some(value.into_t::<String>().unwrap())
@@ -229,10 +229,10 @@ impl TestFixture {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::BURN_ENTRY_POINT_NAME,
+            casper_erc777::constants::BURN_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
-                casper_erc20::constants::DATA_RUNTIME_ARG_NAME => data
+                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
+                casper_erc777::constants::DATA_RUNTIME_ARG_NAME => data
             },
         );
     }
@@ -241,9 +241,9 @@ impl TestFixture {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::AUTHORIZE_OPERATOR_ENTRY_POINT_NAME,
+            casper_erc777::constants::AUTHORIZE_OPERATOR_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::OPERATOR_RUNTIME_ARG_NAME => operator
+                casper_erc777::constants::OPERATOR_RUNTIME_ARG_NAME => operator
             },
         );
     }
@@ -252,9 +252,9 @@ impl TestFixture {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::REVOKE_OPERATOR_ENTRY_POINT_NAME,
+            casper_erc777::constants::REVOKE_OPERATOR_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::OPERATOR_RUNTIME_ARG_NAME => operator
+                casper_erc777::constants::OPERATOR_RUNTIME_ARG_NAME => operator
             },
         );
     }
@@ -269,11 +269,11 @@ impl TestFixture {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::SEND_ENTRY_POINT_NAME,
+            casper_erc777::constants::SEND_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::RECIPIENT_RUNTIME_ARG_NAME => recipient,
-                casper_erc20::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
-                casper_erc20::constants::DATA_RUNTIME_ARG_NAME => data
+                casper_erc777::constants::RECIPIENT_RUNTIME_ARG_NAME => recipient,
+                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
+                casper_erc777::constants::DATA_RUNTIME_ARG_NAME => data
             },
         );
     }
@@ -290,13 +290,13 @@ impl TestFixture {
         self.call(
             operator,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::OPERATOR_SEND_ENTRY_POINT_NAME,
+            casper_erc777::constants::OPERATOR_SEND_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::SENDER_RUNTIME_ARG_NAME => sender,
-                casper_erc20::constants::RECIPIENT_RUNTIME_ARG_NAME => recipient,
-                casper_erc20::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
-                casper_erc20::constants::DATA_RUNTIME_ARG_NAME => data,
-                casper_erc20::constants::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
+                casper_erc777::constants::SENDER_RUNTIME_ARG_NAME => sender,
+                casper_erc777::constants::RECIPIENT_RUNTIME_ARG_NAME => recipient,
+                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
+                casper_erc777::constants::DATA_RUNTIME_ARG_NAME => data,
+                casper_erc777::constants::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
             },
         );
     }
@@ -312,12 +312,12 @@ impl TestFixture {
         self.call(
             operator,
             self.contract_hash_erc20().value(),
-            casper_erc20::constants::OPERATOR_BURN_ENTRY_POINT_NAME,
+            casper_erc777::constants::OPERATOR_BURN_ENTRY_POINT_NAME,
             runtime_args! {
-                casper_erc20::constants::ACCOUNT_RUNTIME_ARG_NAME => account,
-                casper_erc20::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
-                casper_erc20::constants::DATA_RUNTIME_ARG_NAME => data,
-                casper_erc20::constants::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
+                casper_erc777::constants::ACCOUNT_RUNTIME_ARG_NAME => account,
+                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount,
+                casper_erc777::constants::DATA_RUNTIME_ARG_NAME => data,
+                casper_erc777::constants::OPERATOR_DATA_RUNTIME_ARG_NAME => operator_data
             },
         );
     }

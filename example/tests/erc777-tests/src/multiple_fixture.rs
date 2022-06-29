@@ -20,7 +20,7 @@ use casper_types::{
 };
 
 const ERC1820_CONTRACT_WASM: &str = "erc1820_registry.wasm";
-const ERC777_CONTRACT_WASM: &str = "erc20_token.wasm";
+const ERC777_CONTRACT_WASM: &str = "erc777_token.wasm";
 
 fn blake2b256(item_key_string: &[u8]) -> Box<[u8]> {
     let mut hasher = VarBlake2b::new(32).unwrap();

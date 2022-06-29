@@ -11,7 +11,7 @@ pub const DECIMALS_KEY_VALUE: u8 = 18;
 /// Name of dictionary-key for `granularity`
 pub const GRANULARITY_KEY_NAME: &str = "granularity";
 /// Name of named-key for `contract`
-pub const ERC20_TOKEN_CONTRACT_NAME: &str = "erc20_token_contract";
+pub const ERC20_TOKEN_CONTRACT_NAME: &str = "erc777_token_contract";
 /// Name of dictionary-key for `balances`
 pub const BALANCES_KEY_NAME: &str = "balances";
 /// Name of dictionary-key for `allowances`

@@ -2,7 +2,7 @@
 
 This tutorial introduces an implementation of the ERC-20 and ERC-777 standard for the Casper blockchain. The code for ERC-20 tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
 
-The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) and the [Ethereum Request for Comment (ERC-777)](https://eips.ethereum.org/EIPS/eip-777#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-20 tokens are blockchain-based assets that have value and can be transferred or recorded.
+The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) and the [Ethereum Request for Comment (ERC-777)](https://eips.ethereum.org/EIPS/eip-777#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-777 tokens are blockchain-based assets that have value and can be transferred or recorded.
 
 The ERC-777 standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
@@ -17,7 +17,7 @@ If you haven't read [Writing Rust Contracts on Casper](https://casper.network/do
 First clone the contract from GitHub:
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20 && cd erc20
+git clone https://github.com/casper-ecosystem/erc20 && cd erc777
 ```
 
 Prepare your environment with the following command:
@@ -51,7 +51,7 @@ In [GitHub](https://github.com/casper-ecosystem/erc20), you will find a library 
 
 ## Installing Required Crates {#installing-crates}
 
-Since this is a Rust implementation of the ERC-20 token for Casper, we will go over a few implementation details. Casper contracts require the following crates to be included:
+Since this is a Rust implementation of the ERC-777 token for Casper, we will go over a few implementation details. Casper contracts require the following crates to be included:
 
 - [casper_contract](https://docs.rs/casper-contract/1.3.3/casper_contract/) - A Rust library for writing smart contracts on the Casper Network
 - [casper_types](https://docs.rs/casper-types/latest/casper_types/) - Types used to allow creation of Wasm contracts and tests for use on the Casper Network

@@ -7,7 +7,7 @@
 //!
 //! ```bash
 //! cargo install cargo-casper
-//! cargo casper --erc20 <PATH TO NEW PROJECT>
+//! cargo casper --erc777 <PATH TO NEW PROJECT>
 //! ```
 
 #![warn(missing_docs)]
@@ -51,7 +51,7 @@ pub use error::Error;
 
 /// Implementation of ERC20 standard functionality.
 #[derive(Default)]
-pub struct ERC20 {
+pub struct ERC777 {
     balances_uref: OnceCell<URef>,
     allowances_uref: OnceCell<URef>,
     total_supply_uref: OnceCell<URef>,
@@ -59,7 +59,7 @@ pub struct ERC20 {
     registry_uref: OnceCell<URef>
 }
 
-impl ERC20 {
+impl ERC777 {
     fn new(balances_uref: URef, allowances_uref: URef, total_supply_uref: URef, operators_uref: URef, registry_uref: URef) -> Self {
         Self {
             balances_uref: balances_uref.into(),
@@ -137,9 +137,9 @@ impl ERC20 {
         granularity: U256,
         initial_supply: U256,
         erc1820_hash: ContractHash
-    ) -> Result<ERC20, Error> {
+    ) -> Result<ERC777, Error> {
         let default_entry_points = entry_points::default();
-        ERC20::install_custom(
+        ERC777::install_custom(
             name,
             symbol,
             granularity,
@@ -409,7 +409,7 @@ impl ERC20 {
         contract_key_name: &str,
         entry_points: EntryPoints,
         erc1820_hash: ContractHash
-    ) -> Result<ERC20, Error> {
+    ) -> Result<ERC777, Error> {
         let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
         let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
         let operators_uref = storage::new_dictionary(OPERATORS_KEY_NAME).unwrap_or_revert();
@@ -490,7 +490,7 @@ impl ERC20 {
         // Hash of the installed contract will be reachable through named keys.
         runtime::put_key(contract_key_name, Key::from(contract_hash));
 
-        Ok(ERC20::new(
+        Ok(ERC777::new(
             balances_uref,
             allowances_uref,
             total_supply_uref,
