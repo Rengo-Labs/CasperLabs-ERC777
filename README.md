@@ -17,7 +17,7 @@ make prepare
 ```
 
 ## Build Smart Contracts
-To build the example ERC-20 contract and supporting test contracts:
+To build the example ERC-777 contract and supporting test contracts:
 
 ```
 make build-contracts
