@@ -1,6 +1,7 @@
 use alloc::string::{String};
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{ContractHash, Key, runtime_args, RuntimeArgs, U256, URef};
+use casper_types::bytesrepr::Bytes;
 use crate::{Address, detail};
 use crate::constants::{
     GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT, REGISTRY_CONTRACT_NAME, SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
@@ -19,7 +20,7 @@ pub(crate) fn set_registry(registry_uref: URef, contract_hash: ContractHash) {
     storage::dictionary_put(registry_uref, REGISTRY_CONTRACT_NAME, contract_hash);
 }
 
-pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: String) -> Key {
+pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: Bytes) -> Key {
 
     //let hash_contract = ContractHash::from_formatted_str(HASH_ERC1820_REGISTRY).unwrap();
     let hash_contract = storage::dictionary_get(
@@ -41,7 +42,7 @@ pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: Strin
     result
 }
 
-pub(crate) fn set_interface(registry_uref: URef, account: Address, i_hash: String, implementer: Key) {
+pub(crate) fn set_interface(registry_uref: URef, account: Address, i_hash: Bytes, implementer: Key) {
 
     //let hash_contract = ContractHash::from_formatted_str(HASH_ERC1820_REGISTRY).unwrap();
     let hash_contract = storage::dictionary_get(
@@ -66,8 +67,8 @@ pub(crate) fn tokens_to_send(
     from: Address,
     to: Address,
     amount: U256,
-    user_data: String,
-    operator_data: String,
+    user_data: Bytes,
+    operator_data: Bytes,
     implementer: Key
 ) {
 
@@ -91,8 +92,8 @@ pub(crate) fn tokens_received(
     from: Address,
     to: Address,
     amount: U256,
-    user_data: String,
-    operator_data: String,
+    user_data: Bytes,
+    operator_data: Bytes,
     implementer: Key
 ) {
 

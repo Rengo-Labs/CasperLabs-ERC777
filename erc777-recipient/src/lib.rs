@@ -27,6 +27,7 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{{contracts::NamedKeys, EntryPoints, Key, URef}, U256, ContractHash};
+use casper_types::bytesrepr::{Bytes, ToBytes};
 use constants::{
     ERC777_RECIPIENT_CONTRACT_NAME, BALANCES_REGISTRY_KEY_NAME,
     HASH_ERC1820_RECIPIENT, ERC777_REGISTRY_KEY_NAME
@@ -60,8 +61,8 @@ impl ERC777Recipient {
         from: Key,
         to: Key,
         amount: U256,
-        data: String,
-        operator_data: String
+        data: Bytes,
+        operator_data: Bytes
     ) -> Result<(), Error> {
         //register or revert
         Ok(())
@@ -77,8 +78,8 @@ impl ERC777Recipient {
         from: Key,
         to: Key,
         amount: U256,
-        user_data: String,
-        operator_data: String
+        user_data: Bytes,
+        operator_data: Bytes
     ) -> Result<(), Error>{
         erc777_registry::transfer(self.erc777_uref() , from, to, amount, user_data, operator_data);
 
@@ -90,8 +91,8 @@ impl ERC777Recipient {
         self,
         account: Key,
         amount: U256,
-        user_data: String,
-        operator_data: String
+        user_data: Bytes,
+        operator_data: Bytes
     ) -> Result<(), Error>{
         erc777_registry::burn(
             self.erc777_uref(),
@@ -159,7 +160,7 @@ impl ERC777Recipient {
         let account_hash = runtime::get_caller();
         erc1820_registry::set_implementer(
             Key::from(account_hash),
-            HASH_ERC1820_RECIPIENT.to_string(),
+            Bytes::from(HASH_ERC1820_RECIPIENT.to_bytes().unwrap()),
             contract_key,
             erc1820_hash
         );

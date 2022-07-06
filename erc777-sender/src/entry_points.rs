@@ -2,6 +2,7 @@
 use alloc::{string::String, vec};
 
 use casper_types::{{CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter}, U256, Key};
+use casper_types::bytesrepr::Bytes;
 use constants::{ACCOUNT_RUNTIME_ARG_NAME, BURN_ENTRY_POINT};
 
 use crate::constants::{
@@ -19,8 +20,8 @@ pub fn tokens_to_send() -> EntryPoint {
             Parameter::new(FROM_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,
@@ -36,8 +37,8 @@ pub fn transfer() -> EntryPoint {
             Parameter::new(FROM_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,
@@ -52,8 +53,8 @@ pub fn burn() -> EntryPoint {
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,

@@ -4,6 +4,7 @@ use alloc::string::{String, ToString};
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::{ToBytes}, URef, U256};
 use casper_types::account::AccountHash;
+use casper_types::bytesrepr::Bytes;
 
 use crate::{constants::{BALANCES_KEY_NAME, HASH_ERC1820_RECIPIENT, HASH_ERC1820_SENDER}, detail, error::Error, Address};
 use crate::Address::Account;
@@ -77,8 +78,8 @@ pub(crate) fn send_balance(
     sender: Address,
     recipient: Address,
     amount: U256,
-    data: String,
-    operator_data: String,
+    data: Bytes,
+    operator_data: Bytes,
     is_operator: bool
 ) -> Result<(), Error> {
 
@@ -89,7 +90,7 @@ pub(crate) fn send_balance(
     let implementer = get_interface(
         registry_uref,
         sender,
-        HASH_ERC1820_SENDER.to_string()
+        Bytes::from(HASH_ERC1820_SENDER.to_bytes().unwrap())
     );
 
     if implementer.into_hash().is_some() {
@@ -109,7 +110,7 @@ pub(crate) fn send_balance(
     let implementer = get_interface(
         registry_uref,
         sender,
-        HASH_ERC1820_RECIPIENT.to_string()
+        Bytes::from(HASH_ERC1820_RECIPIENT.to_bytes().unwrap())
     );
 
     if implementer.into_hash().is_some() {
@@ -147,18 +148,17 @@ pub fn mint(
     let implementer = get_interface(
         registry_uref,
         owner,
-        HASH_ERC1820_RECIPIENT.to_string()
+        Bytes::from(HASH_ERC1820_RECIPIENT.to_bytes().unwrap())
     );
 
     if implementer.into_hash().is_some() {
-        return Err(Error::User(11));
         tokens_received(
             Account(AccountHash::default()),
             Account(AccountHash::default()),
             owner,
             amount,
-            String::from(""),
-            String::from(""),
+            Bytes::default(),
+            Bytes::default(),
             implementer
         );
     }
@@ -172,8 +172,8 @@ pub fn burn(
     owner: Address,
     amount: U256,
     total_supply: U256,
-    data: String,
-    operator_data: String,
+    data: Bytes,
+    operator_data: Bytes,
     is_operator: bool
 ) -> Result<U256, Error> {
     if is_operator == false {
@@ -183,7 +183,7 @@ pub fn burn(
     let implementer = get_interface(
         registry_uref,
         owner,
-        HASH_ERC1820_SENDER.to_string()
+        Bytes::from(HASH_ERC1820_SENDER.to_bytes().unwrap())
     );
 
     if implementer.into_hash().is_some() {

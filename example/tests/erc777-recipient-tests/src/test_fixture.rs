@@ -7,6 +7,7 @@ use casper_types::{
     account::AccountHash, bytesrepr::{FromBytes, ToBytes},
     runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U512, U256, HashAddr
 };
+use casper_types::bytesrepr::Bytes;
 
 const ERC1820_CONTRACT_WASM: &str = "erc1820_registry.wasm";
 const ERC777_CONTRACT_WASM: &str = "erc777_token.wasm";
@@ -206,7 +207,7 @@ impl TestFixture {
             .query_dictionary_item(key, Some(casper_erc777::constants::BALANCES_KEY_NAME.to_string()), item_key)
             .ok()?;
 
-        Some(value.into_t::<U256>().unwrap())
+        Some(value.into_t::<U256>().unwrap_or_default())
     }
 
     pub fn operators(&self, owner: Key) -> Option<String>{
@@ -225,7 +226,7 @@ impl TestFixture {
         Some(value.into_t::<String>().unwrap())
     }
 
-    pub fn burn(&mut self, amount: U256, data: String, sender: Sender) {
+    pub fn burn(&mut self, amount: U256, data: Bytes, sender: Sender) {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
@@ -263,7 +264,7 @@ impl TestFixture {
         &mut self,
         recipient: Key,
         amount: U256,
-        data: String,
+        data: Bytes,
         sender: Sender
     ) {
         self.call(
@@ -283,8 +284,8 @@ impl TestFixture {
         sender: Key,
         recipient: Key,
         amount: U256,
-        data: String,
-        operator_data: String,
+        data: Bytes,
+        operator_data: Bytes,
         operator: Sender
     ) {
         self.call(
@@ -305,8 +306,8 @@ impl TestFixture {
         &mut self,
         account: Key,
         amount: U256,
-        data: String,
-        operator_data: String,
+        data: Bytes,
+        operator_data: Bytes,
         operator: Sender
     ) {
         self.call(
@@ -327,8 +328,8 @@ impl TestFixture {
         from: Key,
         to: Key,
         amount: U256,
-        user_data: String,
-        operator_data: String,
+        user_data: Bytes,
+        operator_data: Bytes,
         sender: Sender
     ) {
         self.call(
@@ -349,8 +350,8 @@ impl TestFixture {
         &mut self,
         account: Key,
         amount: U256,
-        user_data: String,
-        operator_data: String,
+        user_data: Bytes,
+        operator_data: Bytes,
         sender: Sender
     ) {
         self.call(

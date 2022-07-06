@@ -4,6 +4,7 @@ use alloc::{string::String, vec};
 use casper_types::{
     {CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, Key}
 };
+use casper_types::bytesrepr::Bytes;
 
 use crate::constants::{
     ACCOUNT_RUNTIME_ARG_NAME, GET_INTERFACE_ENTRY_POINT, I_HASH_RUNTIME_ARG_NAME,
@@ -44,7 +45,7 @@ pub fn get_interface_implementer() -> EntryPoint {
         String::from(GET_INTERFACE_ENTRY_POINT),
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         Key::cl_type(),
         EntryPointAccess::Public,
@@ -58,7 +59,21 @@ pub fn set_interface_implementer() -> EntryPoint {
         String::from(SET_INTERFACE_ENTRY_POINT),
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, String::cl_type()),
+            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Key::cl_type())
+        ],
+        CLType::Key,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+pub fn interfaceHash() -> EntryPoint {
+    EntryPoint::new(
+        String::from(SET_INTERFACE_ENTRY_POINT),
+        vec![
+            Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
             Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Key::cl_type())
         ],
         CLType::Key,

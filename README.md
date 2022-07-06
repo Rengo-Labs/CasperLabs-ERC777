@@ -1,4 +1,4 @@
-# Casper ERC-777
+# `Casper ERC-777`
 
 A library for developing ERC-777 tokens for the Casper Network.
 
@@ -12,27 +12,30 @@ What's more, this contract relies on [ERC-1820 Tutorial](erc1820/README.md) to r
 
 Make sure the `wasm32-unknown-unknown` Rust target is installed.
 
-```
+```bash
 make prepare
 ```
 
 ## Build Smart Contracts
 To build the example ERC-777 contract and supporting test contracts:
 
-```
+```bash
 make build-contracts
 ```
 
 ## Test
 
-```
+```bash
 make test
 ```
 
 ## JavaScript Client SDK
 
-A [JavaScript client SDK](https://github.com/casper-network/casper-contracts-js-clients/tree/master/packages/erc20-client) can be used to interact with the ERC-777 contract. 
-
+You can use the next clients to deploy and interact with these contracts:
+- [ERC1820 Client](https://github.com/Rengo-Labs/CasperLabs-ERC777-client/tree/master/src/clients/erc1820)
+- [ERC777 Client](https://github.com/Rengo-Labs/CasperLabs-ERC777-client/tree/master/src/clients/erc777)
+- [ERC777 Recipient Client](https://github.com/Rengo-Labs/CasperLabs-ERC777-client/tree/master/src/clients/erc777_recipient)
+- [ERC777 Sender Client](https://github.com/Rengo-Labs/CasperLabs-ERC777-client/tree/master/src/clients/erc777_sender)
 
 ## Documentation
 

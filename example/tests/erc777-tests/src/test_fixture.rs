@@ -7,6 +7,7 @@ use casper_types::{
     account::AccountHash, ContractHash, bytesrepr::{FromBytes, ToBytes}, runtime_args, AsymmetricType, CLTyped,
     Key, PublicKey, RuntimeArgs, U512, U256, HashAddr
 };
+use casper_types::bytesrepr::Bytes;
 
 const ERC1820_CONTRACT_WASM: &str = "erc1820_registry.wasm";
 const ERC20_CONTRACT_WASM: &str = "erc777_token.wasm";
@@ -213,7 +214,7 @@ impl TestFixture {
         );
     }
 
-    pub fn burn(&mut self, amount: U256, data: String, sender: Sender) {
+    pub fn burn(&mut self, amount: U256, data: Bytes, sender: Sender) {
         self.call(
             sender,
             self.contract_hash_erc20().value(),
@@ -251,7 +252,7 @@ impl TestFixture {
         &mut self,
         recipient: Key,
         amount: U256,
-        data: String,
+        data: Bytes,
         sender: Sender
     ) {
         self.call(
@@ -271,8 +272,8 @@ impl TestFixture {
         sender: Key,
         recipient: Key,
         amount: U256,
-        data: String,
-        operator_data: String,
+        data: Bytes,
+        operator_data: Bytes,
         operator: Sender
     ) {
         self.call(
@@ -293,8 +294,8 @@ impl TestFixture {
         &mut self,
         account: Key,
         amount: U256,
-        data: String,
-        operator_data: String,
+        data: Bytes,
+        operator_data: Bytes,
         operator: Sender
     ) {
         self.call(

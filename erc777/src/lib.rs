@@ -40,6 +40,7 @@ use casper_types::{
     {contracts::NamedKeys, EntryPoints, Key, URef, U256},
     ContractHash
 };
+use casper_types::bytesrepr::Bytes;
 
 pub use address::Address;
 use constants::{
@@ -240,7 +241,7 @@ impl ERC777 {
     }
 
     /// Allows burning a ´amount´ tokens straight of the caller's tokens.
-    pub fn burn(&mut self, amount: U256, data: String) -> Result<(), Error> {
+    pub fn burn(&mut self, amount: U256, data: Bytes) -> Result<(), Error> {
         let owner: Address = detail::get_immediate_caller_address()?;
 
         let new_total_supply: U256 = balances::burn(
@@ -250,7 +251,7 @@ impl ERC777 {
             amount,
             self.read_total_supply(),
             data,
-            String::from(""),
+            Bytes::default(),
             true
         ).unwrap_or_revert();
 
@@ -274,8 +275,8 @@ impl ERC777 {
             owner,
             amount,
             self.read_total_supply(),
-            String::from(""),
-            String::from(""),
+            Bytes::default(),
+            Bytes::default(),
             true
         ).unwrap_or_revert();
 
@@ -286,7 +287,7 @@ impl ERC777 {
 
     //todo event
     /// Allows sending a ´amount´ tokens to a ´recipient´ of the caller's tokens.
-    pub fn send(&mut self, recipient: Address, amount: U256, data: String) -> Result<(), Error> {
+    pub fn send(&mut self, recipient: Address, amount: U256, data: Bytes) -> Result<(), Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
         balances::send_balance(
@@ -296,7 +297,7 @@ impl ERC777 {
             recipient,
             amount,
             data,
-            String::from(""),
+            Bytes::default(),
             true
         )
     }
@@ -349,8 +350,8 @@ impl ERC777 {
         sender: Address,
         recipient: Address,
         amount: U256,
-        data: String,
-        operator_data: String
+        data: Bytes,
+        operator_data: Bytes
     ) -> Result<(), Error> {
         let caller = runtime::get_caller();
 
@@ -373,8 +374,8 @@ impl ERC777 {
         &mut self,
         account: Address,
         amount: U256,
-        data: String,
-        operator_data: String
+        data: Bytes,
+        operator_data: Bytes
     ) -> Result<(), Error>{
         let owner= runtime::get_caller();
 

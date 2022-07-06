@@ -1,9 +1,9 @@
 //! Implementation of balances.
-use alloc::string::String;
 use core::convert::TryInto;
 
 use casper_contract::{contract_api::{storage, runtime}, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{URef, U256, ApiError, ContractHash, Key, runtime_args, RuntimeArgs};
+use casper_types::bytesrepr::Bytes;
 
 use crate::{
     constants::{
@@ -27,7 +27,7 @@ pub(crate) fn save_erc777_contract(erc777_uref: URef, contract_hash: ContractHas
 }
 
 /// transfer tokens calling an erc777 contract
-pub(crate) fn transfer(erc777_uref: URef, from: Key, to: Key, amount: U256, user_data: String, operator_data: String) {
+pub(crate) fn transfer(erc777_uref: URef, from: Key, to: Key, amount: U256, user_data: Bytes, operator_data: Bytes) {
     let hash_contract = storage::dictionary_get(
         erc777_uref,
         ERC777_REGISTRY_KEY_NAME
@@ -48,7 +48,7 @@ pub(crate) fn transfer(erc777_uref: URef, from: Key, to: Key, amount: U256, user
 }
 
 /// burn tokens calling an erc777 contract
-pub(crate) fn burn(erc777_uref: URef, account: Key, amount: U256, user_data: String, operator_data: String) {
+pub(crate) fn burn(erc777_uref: URef, account: Key, amount: U256, user_data: Bytes, operator_data: Bytes) {
     let hash_contract = storage::dictionary_get(
         erc777_uref,
         ERC777_REGISTRY_KEY_NAME

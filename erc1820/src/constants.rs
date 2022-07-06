@@ -14,7 +14,14 @@ pub const GET_INTERFACE_ENTRY_POINT: &str = "get_interface_implementer";
 pub const SET_MANAGER_ENTRY_POINT: &str = "set_manager";
 ///
 pub const GET_MANAGER_ENTRY_POINT: &str = "get_manager";
-
+///
+pub const INTERFACE_HASH: &str = "interface_hash";
+///
+pub const UPDATE_ERC165_CACHE: &str = "update_erc165_Cache";
+///
+pub const IMPLEMENTERS_ERC165_INTERFACE: &str = "implements_erc165_interface";
+///
+pub const IMPLEMENTERS_ERC165_INTERFACE_NO_CACHE: &str = "implements_erc165_interface_no_cache";
 
 /// Entry point's parameter
 pub const ACCOUNT_RUNTIME_ARG_NAME: &str = "account";

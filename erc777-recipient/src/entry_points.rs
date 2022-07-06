@@ -2,6 +2,7 @@
 use alloc::{string::String, vec};
 
 use casper_types::{{CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter}, Key, U256};
+use casper_types::bytesrepr::Bytes;
 use constants::{ACCOUNT_RUNTIME_ARG_NAME, BALANCE_OF_ENTRY_POINT_NAME, TOKENS_RECEIVED_ENTRY_POINT, OPERATOR_RUNTIME_ARG_NAME, FROM_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME, TRANSFER_ENTRY_POINT, BURN_ENTRY_POINT};
 
 /// Returns the `balance_of` entry point.
@@ -24,8 +25,8 @@ pub fn tokens_received() -> EntryPoint {
             Parameter::new(FROM_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,
@@ -41,8 +42,8 @@ pub fn transfer() -> EntryPoint {
             Parameter::new(FROM_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,
@@ -57,8 +58,8 @@ pub fn burn() -> EntryPoint {
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(USER_DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Key,
         EntryPointAccess::Public,

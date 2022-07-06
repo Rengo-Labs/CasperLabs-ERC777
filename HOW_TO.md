@@ -1,4 +1,4 @@
-# Testing Framework
+# `HOW TO TEST THIS FRAMEWORK`
 
 The testing framework in this tutorial uses the [Casper engine test support](https://crates.io/crates/casper-engine-test-support) crate for testing the contract implementation against the Casper execution environment.
 
@@ -104,8 +104,8 @@ The next step is to define a struct that has its own virtual machine (VM) instan
 This code snippet builds the context and includes the compiled contract _.wasm_ binary being tested. The `TestFixture` struct creates a new instance of the `CONTRACT_ERC20_TOKEN` with the following accounts:
 
 -   `ali` - account used to deploy the contract
--   `bob`
--   `joe`
+-   `bob` - owner's operator
+-   `joe` - recipient
 
 **Note**: 
 

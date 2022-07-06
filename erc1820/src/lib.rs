@@ -28,6 +28,7 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{{contracts::NamedKeys, EntryPoints, Key, URef}, ApiError};
+use casper_types::bytesrepr::Bytes;
 
 use constants::{
     ERC1820_REGISTRY_CONTRACT_NAME, IMPLEMENTERS_REGISTRY_KEY_NAME, MANAGERS_REGISTRY_KEY_NAME
@@ -60,20 +61,20 @@ impl ERC1820 {
     pub fn set_interface_implementer(
         &self,
         account: Key,
-        i_hash: String,
+        i_hash: Bytes,
         implementer: Key
     ) -> Result<(), ApiError> {
         implementers_registry::create_or_update_implementer(
             self.implementer_registry_uref(),
             account,
             i_hash,
-            implementer
-        );
-        Ok(())
+            implementer,
+            managers_registry::get_manager(self.managers_registry_uref(), account)
+        )
     }
 
     /// Returns the symbol of the token.
-    pub fn get_interface_implementer(&self, account: Key, i_hash: String) -> Result<Key, ApiError> {
+    pub fn get_interface_implementer(&self, account: Key, i_hash: Bytes) -> Result<Key, ApiError> {
         let result = implementers_registry::get_implementer(
             self.implementer_registry_uref(),
             account,
@@ -89,9 +90,7 @@ impl ERC1820 {
             self.managers_registry_uref(),
             account,
             new_manager
-        );
-
-        Ok(())
+        )
     }
 
     /// it returns a manager for the parameter account

@@ -60,6 +60,9 @@ pub fn concat_in_string(operators_uref: URef, owner: Address, operator: Address)
         addresses_string = decode(data);
     }
 
+    if addresses_string.contains((*operator.as_account_hash().unwrap()).to_string().as_str()) {
+        return;
+    }
     addresses_string.push_str((*operator.as_account_hash().unwrap()).to_string().as_str());
     addresses_string.push('|');
 

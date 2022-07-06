@@ -1,23 +1,25 @@
-# ERC-777 Tutorial
+# `ERC777 TUTORIAL`
 
-This tutorial introduces an implementation of the ERC-20 and ERC-777 standard for the Casper blockchain. The code for ERC-20 tutorial is available in [GitHub](https://github.com/casper-ecosystem/erc20).
+This tutorial introduces an implementation of the ERC-777 standard from ERC-20 standard for the Casper blockchain. The code for ERC-777 tutorial is available in [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777).
 
-The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) and the [Ethereum Request for Comment (ERC-777)](https://eips.ethereum.org/EIPS/eip-777#specification) standard is an integral part of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-777 tokens are blockchain-based assets that have value and can be transferred or recorded.
+The [Ethereum Request for Comment (ERC-20)](https://eips.ethereum.org/EIPS/eip-20#specification) and the [Ethereum Request for Comment (ERC-777)](https://eips.ethereum.org/EIPS/eip-777#specification) standard are integral parts of the Ethereum ecosystem. This standard is well established for building new tokens based on smart contracts. These ERC-777 tokens are blockchain-based assets that have value and can be transferred or recorded.
 
 The ERC-777 standard defines a set of rules that dictate the total supply of tokens, how the tokens are transferred, how transactions are approved, and how token data is accessed.
 
-What's more, ERC-20 functions are added to support the previous implementation which is defined as : `totalSupply`, `transfer`, `transferFrom`, `approve`, `balanceOf`, and `allowance`. As part of this tutorial, we will review the [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) and the [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) library.
+What's more, ERC-20 functions are added to support the previous implementation which is defined as : `total_supply`, `transfer`, `transfer_from`, `approve`, `balance_of`, and `allowance`. As part of this tutorial, we will review the [contract](https://github.com/casper-ecosystem/erc20/blob/master/example/erc20-token/src/main.rs) and the [casper_erc20](https://docs.rs/casper-erc20/latest/casper_erc20/) library.
 
-The ERC-777 functions are: `granularity`, `send`, `burn`, `operatorSend`, `operatorBurn`, `defaultOperators`, `authorizeOperator`, `revokeOperator`, 
+The ERC-777 functions are: `granularity`, `send`, `burn`, `operator_send`, `operator_burn`, `default_operators`, `authorize_operator`, `revoke_operator`, 
 
 If you haven't read [Writing Rust Contracts on Casper](https://casper.network/docs/dapp-dev-guide/writing-contracts/rust/), we recommend you start there.
+
+On the other hand, you can use [ERC777-client](https://github.com/Rengo-Labs/CasperLabs-ERC777-client) to deploy and perform operations with this contract.
 
 # Preparation
 
 First clone the contract from GitHub:
 
 ```bash
-git clone https://github.com/casper-ecosystem/erc20 && cd erc777
+git clone https://github.com/Rengo-Labs/CasperLabs-ERC777.git && cd CasperLabs-ERC777
 ```
 
 Prepare your environment with the following command:
@@ -44,7 +46,7 @@ make test
 
 # Contract Implementation
 
-In [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777), you will find a library and an [example implementation](example/implementations/erc777-token/src/main.rs) of the ERC-20 token for the Casper Network. This section explains the example contract in more detail.
+In [GitHub](https://github.com/Rengo-Labs/CasperLabs-ERC777), you will find a library and an [example implementation](example/implementations/erc777-token/src/main.rs) of the ERC-777 token for the Casper Network. This section explains the example contract in more detail.
 
 **Note**: To successfully execute the contract you need to copy the full contract file with all the necessary imports, declarations, and functions. All those parts are required to compile it. To execute the contract you need to deploy the .wasm file on the network.
 
@@ -59,11 +61,23 @@ Since this is a Rust implementation of the ERC-777 token for Casper, we will go 
 
 Here is the code snippet which imports those crates:
 
-<img src="./images/erc20-implementation-install-crates.png" alt="import-crates" title="import-crates">
-
+```rust
+use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_types::{CLValue, U256, bytesrepr::Bytes};
+use casper_erc777::{
+    constants::{
+        ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME,
+        NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
+        SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
+        DATA_RUNTIME_ARG_NAME, GRANULARITY_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME,
+        OPERATOR_RUNTIME_ARG_NAME, SENDER_RUNTIME_ARG_NAME, TOKEN_HOLDER_RUNTIME_ARG_NAME,
+        ACCOUNT_RUNTIME_ARG_NAME, HASH_ERC1820_RUNTIME_ARG_NAME
+    },
+    Address, ERC777,
+};
+```
 
 **Note**: In Rust, the keyword `use` is like an include statement in C/C++.
-
 
 
 ## Initializing the Contract {#initializing-the-contract}
@@ -71,7 +85,26 @@ Initializing the contract happens through the `call()` function inside the [cont
 
 The code snippet for initializing the contract should look like this:
 
-<img src="./images/erc20-call.png" alt="call-function" title="call-function">
+```rust
+#[no_mangle]
+fn call() {
+    let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
+    let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
+    let granularity = runtime::get_named_arg(GRANULARITY_RUNTIME_ARG_NAME);
+    let total_supply = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+
+    //Delete this field and replace for a ContractHash::default()
+    let erc1820_hash = runtime::get_named_arg(HASH_ERC1820_RUNTIME_ARG_NAME);
+
+    let _token = ERC777::install(
+        name,
+        symbol,
+        granularity,
+        total_supply,
+        erc1820_hash
+    ).unwrap_or_revert();
+}
+```
 
 ## Contract Methods {#contract-methods}
 
@@ -87,7 +120,7 @@ Contract methods for ERC-20 are:
 -   [**approve**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L63-L69) - Allows a spender to transfer up to an amount of the direct caller’s tokens
 -   [**balance_of**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L46-L51) - Returns the token balance of the owner
 -   [**decimals**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L34-L38) - Returns the decimals of the token
--   [**name**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L22-L26)- Returns the name of the token
+-   [**name**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L22-L26) - Returns the name of the token
 -   [**symbol**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L28-L32) - Returns the symbol of the token
 -   [**total_supply**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L40-L44) - Returns the total supply of the token
 -   [**transfer**](https://github.com/casper-ecosystem/erc20/blob/70003da1bc2aa544bb3687ba79bb5fd4bd5b5525/example/erc20-token/src/main.rs#L53-L61) - Transfers an amount of tokens from the direct caller to a recipient
@@ -108,7 +141,9 @@ Contract methods for ERC-777 are:
 
 # Contract Deployment
 
-Now that you have implemented the smart contract for ERC-777, it's time to deploy it to the blockchain. Deploying the ERC-777 contract is similar to deploying other smart contracts, while only the WASM files and parameters will differ. Refer to the [Deploying Contracts](https://casper.network/docs/dapp-dev-guide/deploying-contracts/) section to learn more about overall contract deployment.
+Before deploying ERC-777, you firstly need to deploy ERC-1820 following the next [**link**](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/erc1820).
+
+Now that you have implemented the smart contract for [**ERC-777**](https://github.com/Rengo-Labs/CasperLabs-ERC777/tree/main/erc777), it's time to deploy it to the blockchain. Deploying the ERC-777 contract is similar to deploying other smart contracts, while only the WASM files and parameters will differ. Refer to the [Deploying Contracts](https://casper.network/docs/dapp-dev-guide/deploying-contracts/) section to learn more about overall contract deployment.
 
 Let's dive into the deployment process.
 
@@ -122,17 +157,17 @@ Let's dive into the deployment process.
 ## Basic Flow {#basic-flow}
 Here are the basic steps to deploy the ERC-777 contract on the Casper Network.
 
-<img src="./images/erc20-deploy-flow.png" alt="erc20-deploy-flow" title="erc20-deploy-flow">
+<img src="./images/erc777-deploy-flow.png" alt="erc777-deploy-flow" title="erc777-deploy-flow">
 
 ## Cloning the ERC-777 Contract {#cloning-the-erc-777-contract}
 This step includes cloning and preparing the ERC-777 contract for the deployment.
 1. Clone the ERC-777 contract from the repository
 ```bash
-git clone https://github.com/casper-ecosystem/erc20.git
+git clone https://github.com/Rengo-Labs/CasperLabs-ERC777.git && cd CasperLabs-ERC777
 ```
+
 2. Move to the newly created folder and compile the contract to create the target WASM file and build the WASM 
 ```bash
-cd erc777
 make prepare
 make build-contracts
 ```
@@ -204,7 +239,7 @@ casper-client put-deploy \
 --chain-name casper-test \
 --secret-key "/home/ubuntu/secret_key.pem" \
 --payment-amount 1000000 \
---session-path "<machine-path>/erc20/target/wasm32-unknown-unknown/release/erc20_test.wasm"
+--session-path "<machine-path>/erc777/target/wasm32-unknown-unknown/release/erc777_token.wasm"
 ```
 
 ## Querying the Network Status {#querying-the-network-status}
@@ -213,7 +248,7 @@ You need to get the newest state root hash to view the network status because it
 
 ## Verifying the Deploy {#verifying-the-deploy}
 Now you can verify the applied deploy using the `get deploy` command. This will output the details of the applied deploy.
-```bash
+``` bash
 casper-client get-deploy \
 --node-address http://<HOST:PORT> [DEPLOY_HASH]
 ```

@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use blake2::{
     digest::{Update, VariableOutput},
     VarBlake2b,
@@ -6,8 +5,8 @@ use blake2::{
 use casper_engine_test_support::{Code, SessionBuilder, TestContext, TestContextBuilder};
 use casper_types::{
     account::AccountHash,
-    bytesrepr::{FromBytes, ToBytes},
-    runtime_args, AsymmetricType, CLTyped, ContractHash, Key, PublicKey, RuntimeArgs, U512,
+    bytesrepr::{ToBytes},
+    runtime_args, AsymmetricType, ContractHash, Key, PublicKey, RuntimeArgs, U512,
 };
 use casper_types::bytesrepr::Bytes;
 
@@ -34,8 +33,8 @@ impl TestERC1820 {
 
     pub fn install_contract() -> TestERC1820 {
         let ali = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
-        let bob = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
-        let joe = PublicKey::ed25519_from_bytes([3u8; 32]).unwrap();
+        let bob = PublicKey::ed25519_from_bytes([6u8; 32]).unwrap();
+        let joe = PublicKey::ed25519_from_bytes([9u8; 32]).unwrap();
 
         let mut context = TestContextBuilder::new()
             .with_public_key(ali.clone(), U512::from(500_000_000_000_000_000u64))
@@ -83,7 +82,7 @@ impl TestERC1820 {
         self.context.run(session);
     }
 
-    pub fn set_interface_implementer(&mut self, account: Key, i_hash: String, implementer: Key, sender: Sender) {
+    pub fn set_interface_implementer(&mut self, account: Key, i_hash: Bytes, implementer: Key, sender: Sender) {
         self.call(
             sender,
             casper_erc1820::constants::SET_INTERFACE_ENTRY_POINT,
@@ -106,12 +105,12 @@ impl TestERC1820 {
         );
     }
 
-    pub fn get_interface_implementer(&self, account: Key, tag: String) -> Option<Key> {
+    pub fn get_interface_implementer(&self, account: Key, tag: Bytes) -> Option<Key> {
         let mut preimage = Vec::new();
         preimage.append(&mut account.to_bytes().unwrap());
-        preimage.append(&mut tag.into_bytes());
+        preimage.append(&mut tag.to_vec());
         let key_bytes = blake2b256(&preimage);
-        let item_key = hex::encode(&key_bytes);;
+        let item_key = hex::encode(&key_bytes);
 
         let key = Key::Hash(self.contract_hash().value());
         let value = self

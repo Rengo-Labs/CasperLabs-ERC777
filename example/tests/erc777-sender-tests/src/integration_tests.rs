@@ -6,6 +6,7 @@ mod test_fixture;
 #[cfg(test)]
 mod tests {
     use casper_types::{Key, U256};
+    use casper_types::bytesrepr::Bytes;
 
     extern crate base64;
     use crate::test_fixture::{Sender, TestFixture};
@@ -48,7 +49,7 @@ mod tests {
         fixture.send(
             Key::from(spender),
             transfer_amount,
-            String::default(),
+            Bytes::default(),
             Sender(owner),
         );
 
@@ -69,13 +70,13 @@ mod tests {
 
         fixture.burn(
             U256::one(),
-            String::default(),
+            Bytes::default(),
             Sender(owner)
         );
 
         fixture.burn(
             U256::one(),
-            String::default(),
+            Bytes::default(),
             Sender(spender)
         );
 
@@ -121,8 +122,8 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             transfer_amount,
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
         let balance_recipient_after = fixture.balance_of(Key::from(recipient));
@@ -167,8 +168,8 @@ mod tests {
         fixture.operator_burn(
             Key::from(owner),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
 
@@ -176,8 +177,8 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
 
@@ -188,8 +189,8 @@ mod tests {
         fixture.operator_burn(
             Key::from(recipient),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(recipient)
         );
 
@@ -234,8 +235,8 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             transfer_amount,
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
         let balance_recipient_after = fixture.balance_of(Key::from(recipient));
@@ -280,8 +281,8 @@ mod tests {
         fixture.burn_from_erc777_sender(
             Key::from(owner),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
 
@@ -289,8 +290,8 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
 
@@ -300,7 +301,7 @@ mod tests {
 
         fixture.burn(
             U256::one(),
-            String::default(),
+            Bytes::default(),
             Sender(recipient)
         );
 
@@ -335,8 +336,8 @@ mod tests {
             Key::from(owner),
             Key::from(recipient),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
     }
@@ -355,8 +356,8 @@ mod tests {
         fixture.operator_burn(
             Key::from(owner),
             U256::one(),
-            String::default(),
-            String::default(),
+            Bytes::default(),
+            Bytes::default(),
             Sender(operator)
         );
     }

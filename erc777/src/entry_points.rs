@@ -3,6 +3,7 @@ use alloc::{string::String, vec, vec::Vec};
 use alloc::boxed::Box;
 
 use casper_types::{CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256};
+use casper_types::bytesrepr::Bytes;
 
 use crate::{
     address::Address,
@@ -150,7 +151,7 @@ pub fn send() -> EntryPoint {
         vec![
             Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -164,7 +165,7 @@ pub fn burn() -> EntryPoint {
         String::from(BURN_ENTRY_POINT_NAME),
         vec![
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -231,8 +232,8 @@ pub fn operator_send() -> EntryPoint {
             Parameter::new(SENDER_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -247,8 +248,8 @@ pub fn operator_burn() -> EntryPoint {
         vec![
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(DATA_RUNTIME_ARG_NAME, String::cl_type()),
-            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, String::cl_type())
+            Parameter::new(DATA_RUNTIME_ARG_NAME, Bytes::cl_type()),
+            Parameter::new(OPERATOR_DATA_RUNTIME_ARG_NAME, Bytes::cl_type())
         ],
         CLType::Unit,
         EntryPointAccess::Public,

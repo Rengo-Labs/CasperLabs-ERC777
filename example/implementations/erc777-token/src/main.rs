@@ -9,6 +9,7 @@ extern crate alloc;
 use alloc::string::String;
 
 use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_types::{CLValue, U256, bytesrepr::Bytes};
 use casper_erc777::{
     constants::{
         ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME,
@@ -20,7 +21,6 @@ use casper_erc777::{
     },
     Address, ERC777,
 };
-use casper_types::{CLValue, U256};
 
 #[no_mangle]
 pub extern "C" fn name() {
@@ -98,7 +98,7 @@ pub extern "C" fn granularity() {
 #[no_mangle]
 pub extern "C" fn burn() {
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
-    let data: String = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
+    let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
 
     ERC777::default()
         .burn(amount, data)
@@ -109,7 +109,7 @@ pub extern "C" fn burn() {
 pub extern "C" fn send() {
     let recipient: Address = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
-    let data: String = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
+    let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
 
     ERC777::default()
         .send(recipient, amount, data)
@@ -155,8 +155,8 @@ pub extern "C" fn operator_send() {
     let sender: Address = runtime::get_named_arg(SENDER_RUNTIME_ARG_NAME);
     let recipient: Address = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
-    let data: String = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
-    let operator_data: String = runtime::get_named_arg(OPERATOR_DATA_RUNTIME_ARG_NAME);
+    let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
+    let operator_data: Bytes = runtime::get_named_arg(OPERATOR_DATA_RUNTIME_ARG_NAME);
 
     ERC777::default()
         .operator_send(sender, recipient, amount, data, operator_data)
@@ -167,8 +167,8 @@ pub extern "C" fn operator_send() {
 pub extern "C" fn operator_burn() {
     let account: Address = runtime::get_named_arg(ACCOUNT_RUNTIME_ARG_NAME);
     let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
-    let data: String = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
-    let operator_data: String = runtime::get_named_arg(OPERATOR_DATA_RUNTIME_ARG_NAME);
+    let data: Bytes = runtime::get_named_arg(DATA_RUNTIME_ARG_NAME);
+    let operator_data: Bytes = runtime::get_named_arg(OPERATOR_DATA_RUNTIME_ARG_NAME);
 
     ERC777::default()
         .operator_burn(account, amount, data, operator_data)
