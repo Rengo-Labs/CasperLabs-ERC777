@@ -28,6 +28,7 @@ pub fn create_or_update_implementer(
     }
 
     if implementer.eq(&manager) || implementer.eq(&Key::Account(AccountHash::default())) {
+        
         return Err(ApiError::User(1001))
     }
 

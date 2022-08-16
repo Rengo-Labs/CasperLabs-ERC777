@@ -7,7 +7,7 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_contract::contract_api::runtime;
-use casper_types::{bytesrepr::{ToBytes}, URef, account::AccountHash, Key};
+use casper_types::{bytesrepr::{ToBytes}, URef, account::AccountHash};
 use crate::{constants::OPERATORS_KEY_NAME, detail, Address, Error};
 use crate::Address::Account;
 

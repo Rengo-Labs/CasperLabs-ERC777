@@ -191,10 +191,6 @@ impl TestFixture {
             .unwrap()
     }
 
-    pub fn token_erc1820(&self) -> Key {
-        self.query_contract_erc20(casper_erc777::constants::REGISTRY_CONTRACT_NAME).unwrap()
-    }
-
     pub fn balance_of(&self, account: Key) -> Option<U256> {
         let item_key = base64::encode(&account.to_bytes().unwrap());
 
@@ -221,31 +217,6 @@ impl TestFixture {
                 operators_item_key,
             ).ok()?;
         Some(value.into_t::<String>().unwrap())
-    }
-
-    pub fn approve(&mut self, spender: Key, amount: U256, sender: Sender) {
-        self.call(
-            sender,
-            self.contract_hash_erc20().value(),
-            casper_erc777::constants::APPROVE_ENTRY_POINT_NAME,
-            runtime_args! {
-                casper_erc777::constants::SPENDER_RUNTIME_ARG_NAME => spender,
-                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount
-            },
-        );
-    }
-
-    pub fn transfer_from(&mut self, owner: Key, recipient: Key, amount: U256, sender: Sender) {
-        self.call(
-            sender,
-            self.contract_hash_erc20().value(),
-            casper_erc777::constants::TRANSFER_FROM_ENTRY_POINT_NAME,
-            runtime_args! {
-                casper_erc777::constants::OWNER_RUNTIME_ARG_NAME => owner,
-                casper_erc777::constants::RECIPIENT_RUNTIME_ARG_NAME => recipient,
-                casper_erc777::constants::AMOUNT_RUNTIME_ARG_NAME => amount
-            },
-        );
     }
 
     pub fn burn(&mut self, amount: U256, data: Bytes, sender: Sender) {

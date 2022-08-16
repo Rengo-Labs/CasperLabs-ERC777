@@ -6,8 +6,6 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::string::String;
-
 use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{CLValue, ContractHash, Key, U256, bytesrepr::Bytes};
 use casper_erc777_recipient::{

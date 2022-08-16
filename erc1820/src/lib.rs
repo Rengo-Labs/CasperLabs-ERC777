@@ -11,14 +11,13 @@ extern crate casper_types;
 extern crate casper_contract;
 extern crate once_cell;
 
-mod address;
 pub mod constants;
 pub mod entry_points;
 mod implementers_registry;
 mod managers_registry;
 mod detail;
 
-use alloc::string::{String, ToString};
+use alloc::string::{ToString};
 use core::convert::TryInto;
 
 use once_cell::unsync::OnceCell;
@@ -127,7 +126,7 @@ impl ERC1820 {
         entry_points: EntryPoints,
     ) -> Result<ERC1820, ApiError> {
 
-        let mut implementer_uref: URef = URef::default();
+        let implementer_uref: URef;
         if runtime::get_key(IMPLEMENTERS_REGISTRY_KEY_NAME).is_some() {
             implementer_uref = runtime::get_key(IMPLEMENTERS_REGISTRY_KEY_NAME)
                 .unwrap_or_revert()
@@ -138,7 +137,7 @@ impl ERC1820 {
                 .unwrap_or_revert();
         }
 
-        let mut manager_uref: URef = URef::default();
+        let manager_uref: URef;
         if runtime::get_key(MANAGERS_REGISTRY_KEY_NAME).is_some() {
             manager_uref = runtime::get_key(MANAGERS_REGISTRY_KEY_NAME)
                 .unwrap_or_revert()

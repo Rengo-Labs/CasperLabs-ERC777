@@ -2,10 +2,8 @@ use alloc::string::{String};
 use casper_types::bytesrepr::{ToBytes};
 use casper_types::{ApiError, Key, URef};
 use casper_contract::{
-    contract_api::{runtime, storage},
-    unwrap_or_revert::UnwrapOrRevert,
+    contract_api::{runtime, storage}
 };
-use casper_types::account::AccountHash;
 use constants::MANAGERS_REGISTRY_KEY_NAME;
 use detail;
 
@@ -36,7 +34,7 @@ pub fn get_manager(manager_uref: URef, account: Key) -> Key {
     let manager: Key = storage::dictionary_get(
         manager_uref,
         hash_string.as_str()
-    ).unwrap_or_default().unwrap_or(Key::Account(caller));
+    ).unwrap().unwrap_or(Key::Account(caller));
 
     manager
 }

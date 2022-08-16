@@ -14,12 +14,11 @@ extern crate once_cell;
 pub mod constants;
 pub mod entry_points;
 mod error;
-mod balances;
 mod erc1820_registry;
 mod recipient_notifier;
 mod erc777_registry;
 
-use alloc::string::{String, ToString};
+use alloc::string::{ToString};
 use once_cell::unsync::OnceCell;
 
 use casper_contract::{
@@ -49,8 +48,14 @@ impl ERC777Recipient {
         }
     }
 
+    /// it loads uref of erc777 namekey
     pub fn erc777_uref(&self) -> URef {
         *self.erc777_uref.get_or_init(erc777_registry::get_erc777_uref)
+    }
+
+    /// it loads uref of balance namekey
+    pub fn balance_uref(&self) -> URef {
+        *self.balance_uref.get_or_init(recipient_notifier::get_balance_uref)
     }
 
     /// The movements or creations are performed in a registered account `to`.
@@ -65,9 +70,12 @@ impl ERC777Recipient {
         operator_data: Bytes
     ) -> Result<(), Error> {
         //register or revert
+
+        recipient_notifier::tokens_received(self.balance_uref(), operator, from, to, amount, data, operator_data);
         Ok(())
     }
 
+    /// it queries balance of some registered owner
     pub fn balance_of(&self, owner: Key) -> Result<U256, Error> {
         erc777_registry::balance_of(self.erc777_uref(), owner)
     }

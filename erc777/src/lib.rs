@@ -28,7 +28,6 @@ mod external_contracts;
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
-use core::convert::TryInto;
 
 use once_cell::unsync::OnceCell;
 
@@ -95,10 +94,6 @@ impl ERC777 {
 
     fn read_balance(&self, owner: Address) -> U256 {
         balances::read_balance_from(self.balances_uref(), owner)
-    }
-
-    fn write_balance(&mut self, owner: Address, amount: U256) {
-        balances::write_balance_to(self.balances_uref(), owner, amount)
     }
 
     fn allowances_uref(&self) -> URef {
@@ -227,16 +222,8 @@ impl ERC777 {
     /// This offers no security whatsoever, hence it is advised to NOT expose this method through a
     /// public entry point.
     pub fn mint(&mut self, owner: Address, amount: U256) -> Result<(), Error> {
-        let new_balance = {
-            let balance = self.read_balance(owner);
-            balance.checked_add(amount).ok_or(Error::Overflow)?
-        };
-        let new_total_supply = {
-            let total_supply: U256 = self.read_total_supply();
-            total_supply.checked_add(amount).ok_or(Error::Overflow)?
-        };
-        self.write_balance(owner, new_balance);
-        self.write_total_supply(new_total_supply);
+        let result = balances::_mint(self.balances_uref(), self.registry_uref(), owner, amount, self.read_total_supply());
+        self.write_total_supply(result.unwrap_or_revert());
         Ok(())
     }
 
@@ -303,7 +290,7 @@ impl ERC777 {
     }
 
     /// Check up if the ´operator´ exists for this account.
-    pub fn is_operator_for(&mut self, operator: Address, token: Address) -> Result<bool, Error> {
+    pub fn is_operator_for(&mut self, operator: Address, _token: Address) -> Result<bool, Error> {
         let caller: Address = detail::get_immediate_caller_address()?;
 
         let result = operators::check_if_exists(self.operators_uref(), caller, operator)?;

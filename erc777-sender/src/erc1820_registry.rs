@@ -1,5 +1,4 @@
-use alloc::string::{String};
-use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::{contract_api::runtime};
 use casper_types::{ContractHash, Key, runtime_args, RuntimeArgs};
 use casper_types::bytesrepr::Bytes;
 use constants::{

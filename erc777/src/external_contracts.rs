@@ -1,11 +1,10 @@
-use alloc::string::{String};
-use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::{contract_api::{runtime, storage}};
 use casper_types::{ContractHash, Key, runtime_args, RuntimeArgs, U256, URef};
 use casper_types::bytesrepr::Bytes;
 use crate::{Address, detail};
 use crate::constants::{
-    GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT, REGISTRY_CONTRACT_NAME, SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
-    I_HASH_RUNTIME_ARG_NAME, IMPLEMENTER_RUNTIME_ARG_NAME, TOKENS_TO_SEND_OF_EXTERNAL_ENTRY_POINT,
+    GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT, REGISTRY_CONTRACT_NAME,
+    I_HASH_RUNTIME_ARG_NAME, TOKENS_TO_SEND_OF_EXTERNAL_ENTRY_POINT,
     OPERATOR_RUNTIME_ARG_NAME, FROM_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME, TOKENS_RECEIVED_OF_EXTERNAL_ENTRY_POINT,
     USER_DATA_RUNTIME_ARG_NAME, OPERATOR_DATA_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME,
     ACCOUNT_RUNTIME_ARG_NAME
@@ -40,26 +39,6 @@ pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: Bytes
     );
 
     result
-}
-
-pub(crate) fn set_interface(registry_uref: URef, account: Address, i_hash: Bytes, implementer: Key) {
-
-    //let hash_contract = ContractHash::from_formatted_str(HASH_ERC1820_REGISTRY).unwrap();
-    let hash_contract = storage::dictionary_get(
-        registry_uref,
-        REGISTRY_CONTRACT_NAME
-    ).unwrap_or_default().unwrap_or_default();
-
-    let registry_args = runtime_args! {
-        ACCOUNT_RUNTIME_ARG_NAME => account,
-        I_HASH_RUNTIME_ARG_NAME => i_hash,
-        IMPLEMENTER_RUNTIME_ARG_NAME => implementer
-    };
-    runtime::call_contract::<()>(
-        hash_contract,
-        SET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
-        registry_args,
-    );
 }
 
 pub(crate) fn tokens_to_send(
