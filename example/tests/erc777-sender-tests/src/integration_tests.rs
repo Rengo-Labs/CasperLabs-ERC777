@@ -30,7 +30,6 @@ mod tests {
 
     #[test]
     fn should_send_and_burn() {
-        let approve_amount = U256::from(100);
         let transfer_amount = U256::from(42);
 
         let mut fixture = TestFixture::install_contract();

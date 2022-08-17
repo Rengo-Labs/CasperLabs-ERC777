@@ -1,5 +1,5 @@
 //! Implementation of balances.
-use alloc::string::{String, ToString};
+use alloc::string::{String};
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::{ToBytes}, URef, U256};
@@ -105,7 +105,10 @@ pub(crate) fn send_balance(
         );
     }
 
-    transfer_balance(balances_uref, sender, recipient, amount);
+    let result = transfer_balance(balances_uref, sender, recipient, amount);
+    if result.is_err() {
+        return result;
+    }
 
     let implementer = get_interface(
         registry_uref,
@@ -128,7 +131,7 @@ pub(crate) fn send_balance(
     Ok(())
 }
 
-pub fn mint(
+pub fn _mint(
     balances_uref: URef,
     registry_uref: URef,
     owner: Address,

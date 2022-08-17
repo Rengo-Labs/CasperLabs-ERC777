@@ -124,6 +124,10 @@ pub const HASH_ERC1820_RUNTIME_ARG_NAME: &str = "erc1820_contract";
 pub const HASH_ERC1820_SENDER: &str = "ERC777TokensSender";
 /// Constant to retrieve an implementer to receive tokens
 pub const HASH_ERC1820_RECIPIENT: &str = "ERC777TokensRecipient";
+/// Constant to retrieve an implementer to receive tokens
+pub const HASH_ERC777_TOKEN: &str = "ERC777Token";
+/// Constant to retrieve an implementer to receive tokens
+pub const HASH_ERC20_TOKEN: &str = "ERC20Token";
 
 /// This hash must be configured to use with the actual ERC1820 deployed.
 pub const HASH_ERC1820_REGISTRY: &str = "contract-dbd88acafb7c031f8c9f2aa3a8da7a3a6b74c655921496cdc3bd0d50f61aa997";

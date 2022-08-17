@@ -33,7 +33,7 @@ pub fn set_manager() -> EntryPoint {
             Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(NEW_MANAGER_RUNTIME_ARG_NAME, Key::cl_type())
         ],
-        CLType::Key,
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )
@@ -62,21 +62,7 @@ pub fn set_interface_implementer() -> EntryPoint {
             Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
             Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Key::cl_type())
         ],
-        CLType::Key,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    )
-}
-
-pub fn interfaceHash() -> EntryPoint {
-    EntryPoint::new(
-        String::from(SET_INTERFACE_ENTRY_POINT),
-        vec![
-            Parameter::new(ACCOUNT_RUNTIME_ARG_NAME, Key::cl_type()),
-            Parameter::new(I_HASH_RUNTIME_ARG_NAME, Bytes::cl_type()),
-            Parameter::new(IMPLEMENTER_RUNTIME_ARG_NAME, Key::cl_type())
-        ],
-        CLType::Key,
+        CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     )

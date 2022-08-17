@@ -1,5 +1,4 @@
 //! Implementation of erc777_registry.
-use alloc::string::String;
 use core::convert::TryInto;
 
 use casper_contract::{contract_api::{storage, runtime}, unwrap_or_revert::UnwrapOrRevert};

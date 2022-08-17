@@ -194,10 +194,6 @@ impl TestFixture {
             .unwrap()
     }
 
-    pub fn token_erc1820(&self) -> Key {
-        self.query_contract_erc20(casper_erc777::constants::REGISTRY_CONTRACT_NAME).unwrap()
-    }
-
     pub fn balance_of(&self, account: Key) -> Option<U256> {
         let item_key = base64::encode(&account.to_bytes().unwrap());
 

@@ -3,7 +3,6 @@ mod test_erc1820;
 
 #[cfg(test)]
 mod tests {
-    use casper_contract::unwrap_or_revert::UnwrapOrRevert;
     use casper_types::{Key};
     use casper_types::account::AccountHash;
     use casper_types::bytesrepr::{Bytes, ToBytes};
@@ -97,7 +96,6 @@ mod tests {
     fn should_not_register_an_implementer_with_address_zero() {
         let mut fixture = TestERC1820::install_contract();
         let ali = fixture.ali;
-        let joe = fixture.joe;
 
         let tag_sender = HASH_ERC1820_SENDER.to_string();
 
@@ -125,7 +123,6 @@ mod tests {
     fn should_not_register_an_implementer_with_same_caller_address() {
         let mut fixture = TestERC1820::install_contract();
         let ali = fixture.ali;
-        let joe = fixture.joe;
 
         let tag_sender = HASH_ERC1820_SENDER.to_string();
 

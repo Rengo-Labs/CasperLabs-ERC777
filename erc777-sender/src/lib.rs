@@ -16,8 +16,9 @@ pub mod entry_points;
 mod error;
 mod erc1820_registry;
 mod erc777_registry;
+mod register_movements;
 
-use alloc::string::{String, ToString};
+use alloc::string::{ToString};
 
 use once_cell::unsync::OnceCell;
 
@@ -46,8 +47,14 @@ impl ERC777Sender {
         }
     }
 
+    /// it loads uref of the erc777 namekey
     fn erc777_uref(&self) -> URef {
         *self.erc777_uref.get_or_init(erc777_registry::get_erc777_uref)
+    }
+
+    /// it loads uref of the registry namekey
+    fn registry_uref(&self) -> URef {
+        *self.registry_uref.get_or_init(register_movements::get_registry_uref)
     }
 
     /// Installs the ERC20 contract with the default set of entry points.
@@ -76,6 +83,7 @@ impl ERC777Sender {
         operator_data: Bytes
     ) -> Result<(), Error> {
 
+        register_movements::tokens_received(self.registry_uref(), operator, from, to, amount, user_data, operator_data);
         Ok(())
     }
 
