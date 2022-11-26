@@ -78,7 +78,7 @@ casper-client put-deploy \
 ```
 
 ### REMOVING THE ERC1820_HASH INPUT
-Sometimes it may be desireable to hardcode the 1820 address inside of the contract.  To accomplish this before deploying, you need to replace the constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
+Sometimes it may be desireable to hardcode the 1820 address inside of the contract (for example as a redistributable template for a non-permissioned protocol).  To accomplish this before deploying, you need to replace the constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
 
 And then uncomment in *external_contract.rs* file these blocks code:
 
