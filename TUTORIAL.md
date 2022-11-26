@@ -81,7 +81,7 @@ use casper_erc777::{
 
 
 ## Initializing the Contract {#initializing-the-contract}
-Initializing the contract happens through the `call()` function inside the [contract file](example/implementations/erc777-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, and `total_supply`, which require to start the token supply.
+Initializing the contract happens through the `call()` function inside the [contract file](example/implementations/erc777-token/src/main.rs). When you deploy the contract, you need to initialize it with a `call()` function and define `name`, `symbol`, `decimals`, `total_supply`, and `erc1820_hash`.
 
 The code snippet for initializing the contract should look like this:
 
