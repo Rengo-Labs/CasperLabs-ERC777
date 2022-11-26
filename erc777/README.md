@@ -2,10 +2,9 @@
 
 A library for developing ERC777 tokens for the Casper network.
 
-This contract was modified for working as a ERC777 and is compatible with ERC20.
+This contract was modified to match the ERC777 spec and is compatible with ERC20.
 
-It implements new entry points for performing sure transfer operations, burn and reception of tokens.
-What's more, those tokens can be reverted.
+It implements new entry points for performing operator sends and burns of tokens.  These operator permissions can then be revoked.
 
 On the other hand, you can use this [ERC777 client script](https://github.com/Rengo-Labs/CasperLabs-ERC777-client/tree/master/src/clients/erc777)
 to interact with the Casper Network.
@@ -35,7 +34,7 @@ implementers to notify the tokens sent and received.
 <img src="../images/erc777-deployed-on-casper-network.png" alt="erc777-deployed-on-casper-network" title="erc777-deployed-on-casper-network">
 
 ## SETTING UP THE PROJECT
-To start to develop with this library, you need to follow these steps to avoid errors:
+To start developing with this library, you need to follow these steps to avoid errors:
 
 - First, to add target `wasm32-unknown-unknown`.
 
@@ -49,7 +48,7 @@ make prepare
 make build-contracts
 ```
 
-- Third, to run test
+- Third, to run tests:
 ```bash
 make test
 ```
@@ -57,7 +56,7 @@ make test
 ## DEPLOYMENT
 First of all, you must build the **target** package to be able to deploy the contract:
 
-For install this contract you need to deploy the contract using this parameter:
+For installation of this contract, you need to deploy the contract using hese parameters:
 - **name**
 - **symbol**
 - **total_supply**
@@ -77,8 +76,7 @@ casper-client put-deploy \
 --payment-amount 100000000000
 ```
 
-
-**Note**: Before deploying, you need to replace constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
+**Note**: Before deploying, you need to replace the constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
 And then uncomment in *external_contract.rs* file these blocks code:
 
 First, uncomment this line from [external_contracts.rs](src/external_contracts.rs):
@@ -92,7 +90,8 @@ let hash_contract = storage::dictionary_get(
     REGISTRY_CONTRACT_NAME
 ).unwrap_or_default().unwrap_or_default();
 ```
-Second, you must delete the received Parameter **erc_1820_hash** from **call** 
+
+Second, you must delete the parameter **erc_1820_hash** from **call** 
 function from [**erc777-token/erc/main.rs**](../example/implementations/erc777-token/src/main.rs)
 
 ```rust
