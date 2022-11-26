@@ -62,21 +62,24 @@ For installation of this contract, you need to deploy the contract using hese pa
 - **total_supply**
 - **granularity**
 
-In this example, to deploy an erc777 contract on casper testnet, you need to put this command on terminal:
+In this example, to deploy an erc777 contract on casper testnet, run this command on terminal:
 ```bash
 casper-client put-deploy \
 --node-address http://16.162.124.124:7777 \
 --chain-name casper-test \
---secret-key ~/Test_key.pem \
+--secret-key <your key location> \
 --session-arg "name:string='ERC777 Custom'" \
 --session-arg "symbol:string='my_erc777'" \
 --session-arg "total_supply:u256='100000'" \
 --session-arg "granularity:u256='1'" \
+--session-arg "erc1820_hash:key" \
 --session-path ~/casp-777/target/wasm32-unknown-unknown/release/erc777_token.wasm \
 --payment-amount 100000000000
 ```
 
-**Note**: Before deploying, you need to replace the constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
+### REMOVING THE ERC1820_HASH INPUT
+Sometimes it may be desireable to hardcode the 1820 address inside of the contract.  To accomplish this before deploying, you need to replace the constant ***HASH_ERC1820_REGISTRY*** with the actual **erc1820 contract hash**.
+
 And then uncomment in *external_contract.rs* file these blocks code:
 
 First, uncomment this line from [external_contracts.rs](src/external_contracts.rs):
