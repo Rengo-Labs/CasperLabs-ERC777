@@ -59,7 +59,7 @@ After that, you can deploy putting this command on terminal.
 casper-client put-deploy \
 --node-address http://16.162.124.124:7777 \
 --chain-name casper-test \
---secret-key ~/TestUser_key.pem \
+--secret-key <your key location> \
 --session-path ~/casp-777/target/wasm32-unknown-unknown/release/erc1820_registry.wasm \
 --payment-amount 50000000000
 ```
