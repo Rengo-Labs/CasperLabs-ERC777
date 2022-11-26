@@ -40,10 +40,10 @@ You can use the next clients to deploy and interact with these contracts:
 ## Documentation
 
 For more information, visit the below guides:
-- [ERC-777 Tutorial](TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an ERC-20 contract.
+- [Basic ERC-777 Tutorial](TUTORIAL.md) - An illustrated guide on how to implement, deploy, and test an ERC-777 contract with ERC-20(CEP-18) functionality.
+- [Advanced ERC-777 Tutorial](erc777/README.md) - An illustrated guide on how to implement, deploy, and test an ERC-777 contract with the ERC-1820.
 - [ERC-777 How To Make Tests](HOW_TO.md) - A guide for making tests of Casper in rust.
 - [ERC-1820 Tutorial](erc1820/README.md) - An illustrated guide on how to implement, deploy, and test an ERC-1820 contract.
-- [ERC-777 Tutorial](erc777/README.md) - An illustrated guide on how to implement, deploy, and test an ERC-777 contract.
 - [ERC-777-RECIPIENT Tutorial](erc777-recipient/README.md) - An illustrated guide on how to implement, deploy, and test an ERC-777-RECIPIENT contract.
 - [ERC-777-SENDER Tutorial](erc777-sender/README.md) - An illustrated guide on how to implement, deploy, and test an ERC-777-SENDER contract. 
 - [ERC-20 How-To Guide](https://casper.network/docs/workflow/erc-20-sample-guide) - An example-driven guide on how to setup, query, transfer, approve, and check the balance of an ERC-20 contract.
