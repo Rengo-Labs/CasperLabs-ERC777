@@ -83,7 +83,7 @@ pub(crate) fn send_balance(
     is_operator: bool
 ) -> Result<(), Error> {
 
-    if is_operator == false {
+    if !is_operator {
         return Err(Error::InvalidOperator);
     }
 
@@ -122,8 +122,8 @@ pub(crate) fn send_balance(
             sender,
             recipient,
             amount,
-            data.clone(),
-            operator_data.clone(),
+            data,
+            operator_data,
             implementer
         );
     }
@@ -179,7 +179,7 @@ pub fn burn(
     operator_data: Bytes,
     is_operator: bool
 ) -> Result<U256, Error> {
-    if is_operator == false {
+    if !is_operator {
         return Err(Error::InvalidOperator);
     }
 
@@ -195,8 +195,8 @@ pub fn burn(
             owner,
             Account(AccountHash::default()),
             amount,
-            data.clone(),
-            operator_data.clone(),
+            data,
+            operator_data,
             implementer
         );
     }

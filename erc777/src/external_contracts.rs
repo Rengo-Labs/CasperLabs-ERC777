@@ -32,13 +32,11 @@ pub(crate) fn get_interface(registry_uref: URef, account: Address, i_hash: Bytes
         I_HASH_RUNTIME_ARG_NAME => i_hash
     };
 
-    let result = runtime::call_contract(
+    return runtime::call_contract(
         hash_contract,
         GET_INTERFACE_OF_EXTERNAL_ENTRY_POINT,
         registry_args
     );
-
-    result
 }
 
 pub(crate) fn tokens_to_send(
