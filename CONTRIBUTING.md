@@ -4,7 +4,7 @@ The following is a set of rules and guidelines for contributing to this repo. Pl
 
 ## Submitting issues
 
-If you have questions about how to use Uniswap V2 Core, please direct these to the related discord channels and do not file an issue:
+If you have questions about how to use ERC-777, please direct these to the related discord channels and do not file an issue:
 * [#validators-general](https://discord.gg/9CTHRvvA4d)
 * [#node-tech-support](https://discord.gg/9CTHRvvA4d)
 
@@ -16,9 +16,9 @@ If you have feature enhancements or other requests, please feel free to file iss
   - You can also filter by appending e. g. "state:open" to the search string.
   - More info on [search syntax within GitHub](https://help.github.com/articles/searching-issues)
 
-## Contributing to Uniswap V2 Core - Casper Blockchain
+## Contributing to ERC-777 - Casper Blockchain
 
-All contributions to this repository from September 9, 2021 on are considered to be licensed under MIT License.
+All contributions to this repository from September 9, 2021 on are considered to be licensed under Apache 2.0 License.
 
 Workflow for bug fixes:
 * Check open issues and unmerged pull requests to make sure the topic is not already covered elsewhere
